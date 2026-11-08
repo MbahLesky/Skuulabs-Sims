@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Markers in double curly braces are filled in by the build script (Step 4).
+       The browser never sees them, because they are replaced before the file is saved. -->
+    <title>{{TITLE}}</title>
+    <style>
+        {{TOKENS_CSS}}
+        {{SHELL_CSS}}
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="top">
+            <div class="id">
+                <h1 id="sim-title"></h1>
+                <span id="sim-subject" class="subject"></span>
+            </div>
+            <div class="lang" role="group" data-i18n-tip="language">
+                <button type="button" data-lang="en" aria-pressed="true" data-tip-en="English"
+                    data-tip-fr="Anglais">EN</button>
+                <button type="button" data-lang="fr" aria-pressed="false" data-tip-en="French"
+                    data-tip-fr="Français">FR</button>
+            </div>
+        </header>
+
+        <main class="body">
+            <section class="stage">
+                <div class="canvas-wrap">
+                    <canvas id="canvas" role="img" data-i18n-tip="canvasLabel"></canvas>
+                </div>
+            </section>
+
+            <aside class="panel" aria-labelledby="panel-title">
+                <h2 id="panel-title" data-i18n="controls"></h2>
+                <div id="controls" class="controls"></div>
+                <button type="button" id="restore" class="btn" data-i18n="restore" data-i18n-tip="restoreTip"></button>
+            </aside>
+        </main>
+
+        <footer class="foot"><span data-i18n="footer"></span></footer>
+    </div>
+
+    <script>{{CONFIG}}</script>
+    <script>{{SIM_JS}}</script>
+    <script>{{SHELL_JS}}</script>
+</body>
+
+</html>

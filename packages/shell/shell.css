@@ -1,0 +1,208 @@
+/* Include padding and borders in an element's width, so sizes behave predictably */
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    /* Every value below comes from tokens.js through a variable.
+     Prefixes: --a- apparatus, --i- interface, --m- motion. */
+    font: 16px/1.45 var(--i-fontStack);
+    color: var(--i-text);
+    background: var(--i-background);
+}
+
+/* The page is a grid of three rows: header (own height), body (all remaining space),
+   footer (own height). 100dvh is the visible screen height, even with a phone's address bar.
+   overflow: hidden stops the whole page from scrolling on desktop. */
+.app {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* HEADER */
+.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 16px;
+    background: var(--i-surface);
+    border-bottom: 1px solid var(--i-border);
+}
+
+/* min-width: 0 lets a long title shrink instead of pushing the buttons off screen */
+.id {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    min-width: 0;
+}
+
+h1 {
+    font-size: 1.15rem;
+    margin: 0;
+}
+
+.subject {
+    color: var(--i-textMuted);
+    font-size: 0.9rem;
+}
+
+/* BUTTONS: 44px is the minimum comfortable touch target */
+.lang {
+    display: flex;
+    gap: 4px;
+}
+
+.lang button,
+.btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 14px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--i-text);
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: var(--i-radius);
+    cursor: pointer;
+    transition: transform var(--m-fast);
+}
+
+/* The active language button is filled with the accent colour.
+   Colour is not the only signal: it is also announced through aria-pressed. */
+.lang button[aria-pressed="true"] {
+    background: var(--i-accent);
+    color: var(--i-onAccent);
+    border-color: var(--i-accent);
+}
+
+/* A small shrink on press, so touches feel acknowledged */
+.lang button:active,
+.btn:active {
+    transform: scale(0.97);
+}
+
+/* Visible ring when a keyboard user tabs to a control */
+:focus-visible {
+    outline: 3px solid var(--i-focus);
+    outline-offset: 2px;
+}
+
+/* BODY: two columns on desktop, a 300px panel and the canvas taking the rest.
+   The areas are named so we can swap their order on phones without touching the HTML.
+   min-height: 0 stops the grid from growing taller than the screen. */
+.body {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-areas: "panel stage";
+    min-height: 0;
+}
+
+/* The panel scrolls inside itself if its controls are too tall.
+   min-width and min-height of 0 are the usual fix for unwanted page scrolling. */
+.panel {
+    grid-area: panel;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
+    background: var(--i-surface);
+    border-right: 1px solid var(--i-border);
+}
+
+.panel h2 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* flex: 1 pushes the Restore button to the bottom of the panel */
+.controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* The canvas wrapper fills all the space it is given */
+.stage {
+    grid-area: stage;
+    min-width: 0;
+    min-height: 0;
+    padding: 12px;
+}
+
+.canvas-wrap {
+    width: 100%;
+    height: 100%;
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: var(--i-radius);
+    overflow: hidden;
+}
+
+/* touch-action: none turns off the browser's scrolling and zooming on the canvas,
+   so dragging objects with a finger works */
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+.foot {
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    color: var(--i-textMuted);
+    background: var(--i-surface);
+    border-top: 1px solid var(--i-border);
+}
+
+/* PHONES AND TABLETS (860px or narrower):
+   one column, canvas first, controls below. The page may scroll vertically here,
+   and the canvas takes 60% of the screen height with a minimum so it never gets tiny. */
+@media (max-width: 860px) {
+    .app {
+        height: auto;
+        min-height: 100dvh;
+        overflow: visible;
+    }
+
+    .body {
+        grid-template-columns: 1fr;
+        grid-template-areas: "stage" "panel";
+    }
+
+    .stage {
+        padding: 8px;
+    }
+
+    .canvas-wrap {
+        height: 60vh;
+        min-height: 320px;
+    }
+
+    .panel {
+        border-right: 0;
+        border-top: 1px solid var(--i-border);
+    }
+}
+
+/* Respect people who ask their device for less motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
