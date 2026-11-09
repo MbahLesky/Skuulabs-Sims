@@ -1,0 +1,168 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Canvas Example</title>
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        canvas {
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            text-align: left;
+            margin: 10px;
+            line-height: 1;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>HTML Canvas</h1>
+    <h2>Canvas 1 - Basics</h2>
+    <canvas id="canvas1" width="600" height="400" style="border:1px solid #000000;">
+        Your browser does not support the HTML canvas tag.
+    </canvas>
+
+    <h2>Canvas 2 - Gradient Background</h2>
+    <canvas id="canvas2" width="600" height="400" style="border:1px solid #000000;">
+        Your browser does not support the HTML canvas tag.
+    </canvas>
+
+
+    <script>
+        function loadCanvas1() {
+            let c = document.getElementById('canvas1');
+            let ctx = c.getContext('2d');
+
+            // Draw a line from (0, 0) to (300, 200)
+            ctx.moveTo(0, 0); // starting point of the line
+            ctx.lineTo(300, 200); // center of the canvas
+            ctx.stroke();
+
+            // Draw a rectangle at the bottom right corner of the canvas 
+            ctx.fillStyle = 'blue'; // set the fill color to blue
+            ctx.fillRect(500, 300, 100, 100); // draw a rectangle at (500, 300) with width 100 and height 100
+
+            // Draw a circle at the center of the canvas
+            ctx.strokeStyle = 'red'; // set the stroke color to red
+            ctx.beginPath(); // start a new path
+            ctx.fillStyle = '#00000079'; // set the fill color to red
+            ctx.arc(300, 200, 50, 0, 2 * Math.PI); // draw a circle at (300, 200) with radius 50
+            ctx.fill(); // fill the circle with the current fill color
+
+
+            ctx.roundRect(0, 350, 100, 50, 10); // draw a rectangle at (100, 100) with width 200 and height 150
+            ctx.stroke(); // stroke the rectangle with the current stroke color
+            ctx.closePath(); // close the path
+
+            ctx.font = '30px Saira'; // set the font size and family
+            ctx.strokeStyle = 'green'; // set the stroke color to green
+            ctx.strokeText('I am Lespa', 440, 30); // draw the text at (10, 50)
+
+            ctx.font = '14px IBM Plex Sans'; // set the font size and family
+            ctx.fillStyle = 'black'; // set the fill color to black
+            ctx.fillText('Welcome to my canvas', 440, 50); // stroke the text at (10, 100)
+
+            // Gradient example
+            let gradient = ctx.createLinearGradient(0, 0, 600, 0); // create a linear gradient from (0, 0) to (600, 0)
+            gradient.addColorStop(0, 'red'); // add a color stop at 0
+            gradient.addColorStop(1, 'blue'); // add a color stop at 1
+            ctx.fillStyle = gradient; // set the fill color to the gradient
+            ctx.fillRect(200, 300, 200, 100); // draw a rectangle filled with the gradient
+
+            // Draw Image
+            let img = new Image(); // create a new image object
+            img.src = 'https://upload.wikimedia.org/wikipedia/commons/6/61/HTML5_logo_and_wordmark.svg?utm_source=fr.wikipedia.org&utm_campaign=index&utm_content=original'; // set the source of the image
+            img.onload = function () { // when the image is loaded
+                ctx.drawImage(img, 500, 150, 100, 100); // draw the image at (0, 0) with width 200 and height 200
+            };
+        }
+    
+        function loadCanvas2() {
+            let c = document.getElementById('canvas2');
+            let ctx = c.getContext('2d');
+
+            let grad = ctx.createLinearGradient(0, 0, 600, 400); // create a linear gradient from (0, 0) to (600, 0)
+            grad.addColorStop(0, '#023812'); // add a color stop at 0
+            grad.addColorStop(1, '#000A05'); // add a color stop at 1
+            ctx.fillStyle = grad; // set the fill color to the gradient
+            ctx.fillRect(0, 0, 600, 400); // draw a rectangle filled with the gradient
+
+            // Draw line
+            ctx.beginPath(); // start a new path
+            ctx.moveTo(10, 50); // starting point of the line
+            ctx.lineTo(590, 50)
+            ctx.strokeStyle = '#1C571C'; // set the stroke color to white
+            ctx.lineWidth = 2; // set the line width to 5
+            ctx.lineCap = 'round'; // set the line cap to round
+            ctx.stroke(); // stroke the line with the current stroke color
+
+            ctx.beginPath();
+            ctx.moveTo(40, 80);
+            ctx.lineTo(40, 280);
+            ctx.lineTo(70, 300);
+            ctx.lineTo(280, 300);
+            ctx.lineTo(280, 100);
+            ctx.lineTo(260, 80);
+            ctx.lineTo(40, 80);
+  
+            ctx.moveTo(320, 80);
+            ctx.lineTo(320, 280);
+            ctx.lineTo(340, 300);
+            ctx.lineTo(560, 300);
+            ctx.lineTo(560, 100);
+            ctx.lineTo(540, 80);
+            ctx.lineTo(320, 80);
+
+            ctx.shadowColor = "#011302";
+            ctx.shadowOffsetX = 10;
+            ctx.shadowOffsetY = 10; // set the shadow color to black
+            ctx.shadowBlur = 25;
+
+            ctx.strokeStyle = '#295229'; //
+            ctx.lineWidth = 5; // set the line width to 5 
+            ctx.stroke();
+            ctx.fillStyle = '#091809'; // set the fill color to white
+            ctx.fill(); // fill the shape with the current fill color
+            ctx.closePath(); // close the path
+
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 340, 580, 50); // draw a rectangle at (10, 340) with width 580 and height 50
+
+            ctx.font = '25px Saira'; // set the font size and family
+            ctx.fillStyle = 'white'; // set the fill color to white
+            ctx.textAlign = 'center'; // set the text alignment to left
+            ctx.textBaseline = 'alphabetic'; // set the text baseline to top
+            ctx.fillText('This is a gradient background', 300, 50); // draw the text at (10, 50)
+
+            // TRANSLATE
+            ctx.fillStyle = '#FFFFFF34'
+            ctx.fillRect(50, 90, 200, 30);
+
+            ctx.translate(280, 0); // translate the canvas to (50, 90)
+            ctx.fillStyle = '#FFFFFF34'
+            ctx.fillRect(70, 260, 200, 30);
+
+            ctx.translate(0, 0); // reset the translation to (0, 0)
+            ctx.rotate((Math.PI / 180) * 20); // rotate the canvas by 45 degrees
+            ctx.fillRect(50, 90, 50, 50);
+        }
+        
+        loadCanvas1()
+
+        loadCanvas2()
+
+        console.log('Device Pixel Ratio:', window.devicePixelRatio);
+    </script>
+</body>
+
+</html>
