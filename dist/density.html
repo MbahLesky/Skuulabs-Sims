@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Markers in double curly braces are filled in by the build script (Step 4).
+       The browser never sees them, because they are replaced before the file is saved. -->
+    <title>density</title>
+    <style>
+        :root {
+  --a-glass: #DCEBF5;
+  --a-glassHighlight: #FFFFFF;
+  --a-glassOutline: #3B4A5A;
+  --a-water: #4DA3E0;
+  --a-waterDeep: #2F7FBF;
+  --a-solidFace: #B8C2CC;
+  --a-solidSide: #8D99A5;
+  --a-shadow: rgba(15, 23, 42, 0.18);
+  --a-outlineWidth: 2px;
+  --i-text: #1F2937;
+  --i-textMuted: #5B6573;
+  --i-surface: #FFFFFF;
+  --i-background: #F4F6F8;
+  --i-border: #D5DCE3;
+  --i-accent: #0F766E;
+  --i-onAccent: #FFFFFF;
+  --i-focus: #1D4ED8;
+  --i-radius: 8px;
+  --i-fontStack: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --m-fast: 120ms;
+  --m-normal: 240ms;
+}
+        /* Include padding and borders in an element's width, so sizes behave predictably */
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    /* Every value below comes from tokens.js through a variable.
+     Prefixes: --a- apparatus, --i- interface, --m- motion. */
+    font: 16px/1.45 var(--i-fontStack);
+    color: var(--i-text);
+    background: var(--i-background);
+}
+
+/* The page is a grid of three rows: header (own height), body (all remaining space),
+   footer (own height). 100dvh is the visible screen height, even with a phone's address bar.
+   overflow: hidden stops the whole page from scrolling on desktop. */
+.app {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100dvh;
+    overflow: hidden;
+}
+
+/* HEADER */
+.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 16px;
+    background: var(--i-surface);
+    border-bottom: 1px solid var(--i-border);
+}
+
+/* min-width: 0 lets a long title shrink instead of pushing the buttons off screen */
+.id {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    min-width: 0;
+}
+
+h1 {
+    font-size: 1.15rem;
+    margin: 0;
+}
+
+.subject {
+    color: var(--i-textMuted);
+    font-size: 0.9rem;
+}
+
+/* BUTTONS: 44px is the minimum comfortable touch target */
+.lang {
+    display: flex;
+    gap: 4px;
+}
+
+.lang button,
+.btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 14px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--i-text);
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: var(--i-radius);
+    cursor: pointer;
+    transition: transform var(--m-fast);
+}
+
+/* The active language button is filled with the accent colour.
+   Colour is not the only signal: it is also announced through aria-pressed. */
+.lang button[aria-pressed="true"] {
+    background: var(--i-accent);
+    color: var(--i-onAccent);
+    border-color: var(--i-accent);
+}
+
+/* A small shrink on press, so touches feel acknowledged */
+.lang button:active,
+.btn:active {
+    transform: scale(0.97);
+}
+
+/* Visible ring when a keyboard user tabs to a control */
+:focus-visible {
+    outline: 3px solid var(--i-focus);
+    outline-offset: 2px;
+}
+
+/* BODY: two columns on desktop, a 300px panel and the canvas taking the rest.
+   The areas are named so we can swap their order on phones without touching the HTML.
+   min-height: 0 stops the grid from growing taller than the screen. */
+.body {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-areas: "panel stage";
+    min-height: 0;
+}
+
+/* The panel scrolls inside itself if its controls are too tall.
+   min-width and min-height of 0 are the usual fix for unwanted page scrolling. */
+.panel {
+    grid-area: panel;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
+    background: var(--i-surface);
+    border-right: 1px solid var(--i-border);
+}
+
+.panel h2 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* flex: 1 pushes the Restore button to the bottom of the panel */
+.controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* The canvas wrapper fills all the space it is given */
+.stage {
+    grid-area: stage;
+    min-width: 0;
+    min-height: 0;
+    padding: 12px;
+}
+
+.canvas-wrap {
+    width: 100%;
+    height: 100%;
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: var(--i-radius);
+    overflow: hidden;
+}
+
+/* touch-action: none turns off the browser's scrolling and zooming on the canvas,
+   so dragging objects with a finger works */
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+.foot {
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    color: var(--i-textMuted);
+    background: var(--i-surface);
+    border-top: 1px solid var(--i-border);
+}
+
+/* PHONES AND TABLETS (860px or narrower):
+   one column, canvas first, controls below. The page may scroll vertically here,
+   and the canvas takes 60% of the screen height with a minimum so it never gets tiny. */
+@media (max-width: 860px) {
+    .app {
+        height: auto;
+        min-height: 100dvh;
+        overflow: visible;
+    }
+
+    .body {
+        grid-template-columns: 1fr;
+        grid-template-areas: "stage" "panel";
+    }
+
+    .stage {
+        padding: 8px;
+    }
+
+    .canvas-wrap {
+        height: 60vh;
+        min-height: 320px;
+    }
+
+    .panel {
+        border-right: 0;
+        border-top: 1px solid var(--i-border);
+    }
+}
+
+/* Respect people who ask their device for less motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <header class="top">
+            <div class="id">
+                <h1 id="sim-title"></h1>
+                <span id="sim-subject" class="subject"></span>
+            </div>
+            <div class="lang" role="group" data-i18n-tip="language">
+                <button type="button" data-lang="en" aria-pressed="true" data-tip-en="English"
+                    data-tip-fr="Anglais">EN</button>
+                <button type="button" data-lang="fr" aria-pressed="false" data-tip-en="French"
+                    data-tip-fr="Français">FR</button>
+            </div>
+        </header>
+
+        <main class="body">
+            <section class="stage">
+                <div class="canvas-wrap">
+                    <canvas id="canvas" role="img" data-i18n-tip="canvasLabel"></canvas>
+                </div>
+            </section>
+
+            <aside class="panel" aria-labelledby="panel-title">
+                <h2 id="panel-title" data-i18n="controls"></h2>
+                <div id="controls" class="controls"></div>
+                <button type="button" id="restore" class="btn" data-i18n="restore" data-i18n-tip="restoreTip"></button>
+            </aside>
+        </main>
+
+        <footer class="foot"><span data-i18n="footer"></span></footer>
+    </div>
+
+    <script>// Config for the Density sim. shell.js reads it through window.SKUU_CONFIG.
+// The id must match the folder name (the slug).
+window.SKUU_CONFIG = {
+    id: "density",
+    "title": {
+        "en": "Density",
+        "fr": "Masse Volumique",
+    },
+    "subject": {
+        "en": "Physics",
+        "fr": "Physique"
+    },
+    "description": {
+        "en": "This simulation allows you to explore the concept of density by manipulating the mass and volume of different objects.",
+        "fr": "Cette simulation vous permet d'explorer le concept de densité en manipulant la masse et le volume de différents objets."
+    },
+    "version": "1.0.0",
+}</script>
+    <script>
+window.SKUU_SIM = {
+    // The sim's own words, one dictionary per language.
+    // The shell looks them up with t('placeholder').
+    strings: {
+        en: { placeholder: 'Density simulation: shell ready' },
+        fr: { placeholder: 'Simulation de la masse volumique : structure prête' }
+    },
+
+    // Called by the shell on load, on every language change and on every resize.
+    draw: function (ctx, w, h, t) {
+        ctx.fillStyle = '#5B6573';             // text colour (hard-coded for now)
+        ctx.font = '16px system-ui, sans-serif';
+        ctx.textAlign = 'center';              // x is the centre of the text, not its left edge
+        ctx.textBaseline = 'middle';           // y is the vertical middle of the text
+        ctx.fillText(t('placeholder'), w / 2, h / 2);
+    },
+
+    // Called when the learner clicks Restore defaults. Nothing to reset yet.
+    reset: function () { }
+};</script>
+    <script>// Everything is wrapped in one function so no variable leaks into the global space.
+(function () {
+  // C is this sim's config (title, subject). S is the sim's own code.
+  // Both are created by the sim's files, which load before this one.
+  var C = window.SKUU_CONFIG;
+  var S = window.SKUU_SIM;
+  var lang = 'en'; // English is the default language
+
+  // The shell's own words, in both languages. The sim supplies its own words separately.
+  var UI = {
+    en: {
+      controls: 'Controls',
+      restore: 'Restore defaults',
+      restoreTip: 'Reset the simulation to its starting state',
+      language: 'Language',
+      canvasLabel: 'Simulation canvas',
+      footer: 'Skuulabs'
+    },
+    fr: {
+      controls: 'Commandes',
+      restore: 'Rétablir les valeurs par défaut',
+      restoreTip: 'Remettre la simulation à son état initial',
+      language: 'Langue',
+      canvasLabel: 'Zone de simulation',
+      footer: 'Skuulabs'
+    }
+  };
+
+  // Small shortcuts for finding elements on the page
+  function $(sel) { return document.querySelector(sel); }
+  function all(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+
+  var canvas = $('#canvas');
+  var ctx = canvas.getContext('2d'); // the 2D drawing tool for the canvas
+
+  // Look up a word by its key. Try the shell's dictionary first, then the sim's,
+  // and if neither has it, show the key itself so a missing translation is easy to spot.
+  function t(key) {
+    if (UI[lang][key]) return UI[lang][key];
+    var strings = S && S.strings && S.strings[lang];
+    return (strings && strings[key]) || key;
+  }
+
+  // Resize the canvas to its container and ask the sim to draw.
+  // On sharp screens (dpr above 1) the canvas gets more pixels than its CSS size,
+  // otherwise drawings look blurry. setTransform scales our drawing back to match.
+  function draw() {
+    var rect = canvas.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // The sim draws using the width and height we give it, and the lookup function t
+    if (S && S.draw) S.draw(ctx, rect.width, rect.height, t);
+  }
+
+  // Update everything the learner can see or hear to the current language.
+  // No reload needed: we just rewrite the text in place.
+  function applyLanguage() {
+    document.documentElement.lang = lang;   // tells browsers and screen readers the language
+    document.title = C.title[lang];         // the browser tab title
+    $('#sim-title').textContent = C.title[lang];
+    $('#sim-subject').textContent = C.subject[lang];
+
+    // Every element marked data-i18n gets its text from the dictionary
+    all('[data-i18n]').forEach(function (el) {
+      el.textContent = t(el.getAttribute('data-i18n'));
+    });
+    // Every element marked data-i18n-tip gets a tooltip and an accessible label
+    all('[data-i18n-tip]').forEach(function (el) {
+      var text = t(el.getAttribute('data-i18n-tip'));
+      el.title = text;
+      el.setAttribute('aria-label', text);
+    });
+    // The language buttons: mark the active one and set their tooltips
+    all('[data-lang]').forEach(function (btn) {
+      var code = btn.getAttribute('data-lang');
+      var tip = btn.getAttribute('data-tip-' + lang);
+      btn.setAttribute('aria-pressed', String(code === lang));
+      btn.title = tip;
+      btn.setAttribute('aria-label', tip);
+    });
+
+    // Let the sim update any words of its own, then redraw the canvas
+    if (S && S.onLang) S.onLang(lang, t);
+    draw();
+  }
+
+  // Clicking EN or FR changes the language and updates everything
+  all('[data-lang]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      lang = btn.getAttribute('data-lang');
+      applyLanguage();
+    });
+  });
+
+  // Restore defaults: ask the sim to reset itself, then redraw
+  $('#restore').addEventListener('click', function () {
+    if (S && S.reset) S.reset();
+    draw();
+  });
+
+  // Give the sim what it needs to start: the canvas, a redraw function,
+  // the empty controls area to fill with its own controls, and the word lookup
+  if (S && S.init) S.init({ canvas: canvas, redraw: draw, controls: $('#controls'), t: t });
+
+  // Redraw whenever the canvas changes size (window resize, phone rotation).
+  // Older browsers without ResizeObserver fall back to the window resize event.
+  if (window.ResizeObserver) new ResizeObserver(draw).observe(canvas);
+  else window.addEventListener('resize', draw);
+
+  // Start up: apply English, which also draws for the first time
+  applyLanguage();
+})();</script>
+</body>
+
+</html>

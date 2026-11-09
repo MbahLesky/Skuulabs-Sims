@@ -1,0 +1,32 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="myCanvas" height="300" width="400" style="border:1px solid #000000;"></canvas>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+
+// 1. Set the default brush to BLUE
+ctx.fillStyle = 'blue';
+ctx.fillRect(10, 10, 50, 50); // Draws a BLUE square
+
+// 2. CREATE A CHECKPOINT
+ctx.save(); // The canvas memorizes: "The brush is currently blue"
+
+// 3. Change settings for a temporary drawing
+ctx.fillStyle = 'red';
+ctx.translate(200, 150); // Move the canvas origin a bit
+ctx.fillRect(70, 10, 50, 50); // Draws a RED square in a shifted position
+
+// 4. LOAD THE CHECKPOINT
+ctx.restore(); // The canvas instantly goes back to being un-shifted and blue
+
+// 5. Draw again
+ctx.fillRect(130, 10, 50, 50); // Draws a BLUE square in the normal position!
+    </script>
+</body>
+</html>

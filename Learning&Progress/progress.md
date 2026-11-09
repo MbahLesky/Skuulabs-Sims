@@ -40,3 +40,13 @@ Tracking daily progress, architecture decisions, and learning milestones for the
   - **Transformations:** Matrix translations (`ctx.translate`) and rotations (`ctx.rotate`).
   - **Image Rendering:** Asynchronous SVG/image loading and rendering (`ctx.drawImage`).
   - **Display Optimization:** Investigated `window.devicePixelRatio` scaling to eliminate canvas blurriness on high-DPI (Retina) screens.
+
+---
+
+## Day 04 — Mon, Nov 09, 2026 *(Today)*
+**Focus:** DPR Concepts, Build Pipeline & Density Placeholder
+
+- [x] Explored Device Pixel Ratio (DPR) mechanics, canvas transformations, and `setTransform`.
+- [x] Created `build.js`, along with `sim.config.js` and `sim.js` for the Density simulation placeholder.
+- [x] Built and verified a simple placeholder shell for the Density experiment.
+

@@ -1,0 +1,201 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Pixel Ratio (DPR)</title>
+    <style>
+        canvas {
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Device Pixel Ratio (DPR)</h1>
+
+    <p>The device pixel ratio (DPR) is a measure of how many physical pixels correspond to a single CSS pixel on a device. It is an important concept in web development, especially when working with high-resolution displays.</p>
+
+    <p>For example, a device with a DPR of 2 means that there are 2 physical pixels for every CSS pixel. This can affect how images and other visual elements are displayed on the screen.</p>
+
+    <h2>Why does it matter?</h2>
+    <p>Because if you don't account for the device pixel ratio, your images and graphics may appear blurry or pixelated on high-resolution displays. By using the correct DPR, you can ensure that your visuals look sharp and clear on all devices.</p>
+
+    <h2>What does a high dpr mean?</h2> 
+    <p>A high device pixel ratio means that the device has a higher density of pixels, which can result in sharper and more detailed images. However, it also means that you need to provide higher resolution images to ensure they look good on these devices.</p>
+
+    <div style="margin: 20px 0;">
+        <button id="toggleAnim" style="padding: 8px 16px; font-size: 14px; font-weight: bold; cursor: pointer;">Pause Animation</button>
+        <span style="margin-left: 10px; color: #555;">(Click to freeze and inspect edge sharpness)</span>
+    </div>
+
+    <h3>1. Normal Canvas</h3>
+    <p>DPR is: <b id="normalDprValue"></b></p>
+    <p>Canvas Width: <b id="normalCanvasWidth"></b></p>
+    <p>Canvas Height: <b id="normalCanvasHeight"></b></p>
+    <p>Client Width: <b id="normalClientWidth"></b></p>
+    <p>Client Height: <b id="normalClientHeight"></b></p>
+
+    <canvas id="normalCanvas" width="400" height="200" style="border:1px solid #000000;"></canvas>
+
+    <h3>2. DPR Canvas</h3>
+    <p>DPR is: <b id="dprDprValue"></b></p>
+    <p>Canvas Width: <b id="dprCanvasWidth"></b></p>
+    <p>Canvas Height: <b id="dprCanvasHeight"></b></p>
+    <p>Client Width: <b id="dprClientWidth"></b></p>
+    <p>Client Height: <b id="dprClientHeight"></b></p>
+
+    <canvas id="dprCanvas" width="400" height="200" style="border:1px solid #000000;"> </canvas>
+
+    <h3>3. Crisped DPR Canvas</h3>
+    <p>DPR is: <b id="crispedDprValue"></b></p>
+    <p>Canvas Width: <b id="crispedCanvasWidth"></b></p>
+    <p>Canvas Height: <b id="crispedCanvasHeight"></b></p>
+    <p>Client Width: <b id="crispedClientWidth"></b></p>
+    <p>Client Height: <b id="crispedClientHeight"></b></p>
+
+    <canvas id="crispedCanvas" width="400" height="200" style="border:1px solid #000000;"></canvas>
+
+    <script>
+    
+    // Function that moves (translates), rotates, and scales a square
+    function transformSquare(ctx, {
+        x = 200,          // Move to target X coordinate
+        y = 100,          // Move to target Y coordinate
+        size = 50,        // Base size of the square
+        angle = 30,       // Rotation angle in degrees
+        scale = 1.3,      // Scale factor (e.g. 1.3 = 130%)
+        fillColor = 'blue',
+        strokeColor = 'red',
+        lineWidth = 2
+    } = {}) {
+        // 1. Save current context state (protects DPR scaling & base matrix)
+        ctx.save();
+
+        // 2. MOVE (Translate): shift origin to the square's center point
+        ctx.translate(x, y);
+
+        // 3. ROTATE: rotate around the center (convert degrees to radians)
+        ctx.rotate((angle * Math.PI) / 180);
+
+        // 4. SCALE: resize along X and Y axes
+        ctx.scale(scale, scale);
+
+        // 5. DRAW: draw the square centered on the new origin (0, 0)
+        ctx.beginPath();
+        ctx.rect(-size / 2, -size / 2, size, size);
+        ctx.fillStyle = fillColor;
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = lineWidth;
+        ctx.fill();
+        ctx.stroke();
+
+        // 6. Restore the original canvas state (restores DPR transform)
+        ctx.restore();
+    }
+
+    // Set up each canvas once (buffer dimensions, DPR scaling, and telemetry)
+    function setupCanvas({ id, isDprCanvas = false, isCrispedCanvas = false, prefix }) {
+        const canvas = document.getElementById(id);
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+
+        if (isDprCanvas) {
+            canvas.width = canvas.clientWidth * dpr;
+            canvas.height = canvas.clientHeight * dpr;
+            ctx.scale(dpr, dpr);
+        } else if (isCrispedCanvas) {
+            canvas.width = Math.round(canvas.clientWidth * dpr);
+            canvas.height = Math.round(canvas.clientHeight * dpr);
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        // Update telemetry values
+        document.getElementById(prefix + 'DprValue').textContent = dpr;
+        document.getElementById(prefix + 'CanvasWidth').textContent = canvas.width;
+        document.getElementById(prefix + 'CanvasHeight').textContent = canvas.height;
+        document.getElementById(prefix + 'ClientWidth').textContent = canvas.clientWidth;
+        document.getElementById(prefix + 'ClientHeight').textContent = canvas.clientHeight;
+
+        return { id, canvas, ctx };
+    }
+
+    // Initialize all 3 canvases
+    const canvases = [
+        setupCanvas({ id: 'normalCanvas', prefix: 'normal' }),
+        setupCanvas({ id: 'dprCanvas', isDprCanvas: true, prefix: 'dpr' }),
+        setupCanvas({ id: 'crispedCanvas', isCrispedCanvas: true, prefix: 'crisped' })
+    ];
+
+    // Clear and redraw a single frame
+    function drawFrame(item, { x, y, angle, scale }) {
+        const { ctx, canvas } = item;
+
+        // Reset transform temporarily to clear the entire physical canvas buffer
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.restore();
+
+        // Draw original untransformed reference square (dashed gray outline)
+        ctx.save();
+        ctx.strokeStyle = '#aaaaaa';
+        ctx.setLineDash([4, 4]);
+        ctx.lineWidth = 1;
+        ctx.strokeRect(175, 75, 50, 50);
+        ctx.restore();
+
+        // Move, rotate, and scale the square
+        transformSquare(ctx, { x, y, angle, scale });
+    }
+
+    // Animation Loop
+    let time = 0;
+    let isRunning = true;
+    let animId = null;
+
+    function loop() {
+        time += 0.03;
+
+        // 1. Move: oscillates smoothly across the canvas within safe bounds
+        const x = 200 + 80 * Math.sin(time * 0.8);
+        const y = 100 + 35 * Math.cos(time * 1.1);
+
+        // 2. Rotate: continuously rotates 360 degrees
+        const angle = (time * 50) % 360;
+
+        // 3. Scale: breathes smoothly between 0.7x and 1.5x
+        const scale = 1.1 + 0.4 * Math.sin(time * 1.5);
+
+        // Draw current frame on all 3 canvases
+        canvases.forEach(item => {
+            drawFrame(item, { x, y, angle, scale });
+        });
+
+        // Request next frame if running
+        // NOTE: requestAnimationFrame is browser-standard for smooth 60fps animations.
+        // If you wanted to use setTimeout instead, it would be:
+        // animId = setTimeout(loop, 1000 / 60);
+        if (isRunning) {
+            animId = requestAnimationFrame(loop);
+        }
+    }
+
+    // Start the animation
+    animId = requestAnimationFrame(loop);
+
+    // Pause / Resume toggle button
+    const toggleBtn = document.getElementById('toggleAnim');
+    toggleBtn.addEventListener('click', () => {
+        isRunning = !isRunning;
+        toggleBtn.textContent = isRunning ? 'Pause Animation' : 'Resume Animation';
+        if (isRunning) {
+            loop();
+        } else {
+            cancelAnimationFrame(animId);
+        }
+    });
+
+    </script>
+    
+
+</body>
+</html>
