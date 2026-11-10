@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Skuulabs showcase</title>
+    <style>
+        :root {
+  --a-glass: #D6EFFF;
+  --a-glassHighlight: #FFFFFF;
+  --a-glassOutline: #3B4A5A;
+  --a-water: #8ACEFF;
+  --a-waterDeep: #3D97E0;
+  --a-solidFace: #B8C2CC;
+  --a-solidSide: #8D99A5;
+  --a-shadow: rgba(15, 23, 42, 0.18);
+  --a-outlineWidth: 2px;
+  --i-text: #1F2937;
+  --i-textMuted: #5B6573;
+  --i-surface: #FFFFFF;
+  --i-background: #F4F6F8;
+  --i-border: #D5DCE3;
+  --i-accent: #0F766E;
+  --i-onAccent: #FFFFFF;
+  --i-focus: #1D4ED8;
+  --i-radius: 8px;
+  --i-fontStack: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --m-fast: 120ms;
+  --m-normal: 240ms;
+}
+        * {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font: 16px/1.45 var(--i-fontStack);
+    color: var(--i-text);
+    background: var(--i-background);
+}
+
+.top {
+    padding: 16px;
+    background: var(--i-surface);
+    border-bottom: 1px solid var(--i-border);
+}
+
+.top h1 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.note {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: var(--i-textMuted);
+}
+
+main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+section {
+    margin-bottom: 32px;
+}
+
+h2 {
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+}
+
+h3 {
+    margin: 20px 0 8px;
+    font-size: 0.95rem;
+    color: var(--i-textMuted);
+}
+
+/* auto-fill with a 160px minimum: the browser works out how many columns fit,
+   so phones get one or two and wide screens get many, with no media query */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.empty {
+    margin: 0;
+    color: var(--i-textMuted);
+}
+
+.swatch {
+    padding: 10px;
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: var(--i-radius);
+}
+
+/* The 2px border keeps near-white colours, like the glass highlight, visible on a white card */
+.chip {
+    height: 56px;
+    margin-bottom: 8px;
+    border: 2px solid var(--i-border);
+    border-radius: 6px;
+}
+
+.name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.value {
+    font-size: 0.8rem;
+    color: var(--i-textMuted);
+    overflow-wrap: anywhere;
+}
+
+/* A simple two-column list of name and value */
+dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 16px;
+    margin: 0;
+}
+
+dt {
+    font-weight: 600;
+}
+
+dd {
+    margin: 0;
+    color: var(--i-textMuted);
+    overflow-wrap: anywhere;
+}
+
+/* ---------- Step 2: toolbar and cards ---------- */
+
+/* The header now holds the title block on the left and the checkbox on the right */
+.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toggle input {
+    width: 20px;
+    height: 20px;
+}
+
+:focus-visible {
+    outline: 3px solid var(--i-focus);
+    outline-offset: 2px;
+}
+
+/* One grid of cards per group */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.card {
+    padding: 14px;
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: var(--i-radius);
+    min-width: 0;
+}
+
+.card h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.meta {
+    margin: 2px 0 6px;
+    font-size: 0.8rem;
+    color: var(--i-textMuted);
+}
+
+.desc {
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+}
+
+.specimen {
+    margin-top: 12px;
+}
+
+.specimen-label {
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* The three box shapes sit in a row and wrap onto new lines on narrow screens */
+.shapes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.shape {
+    margin: 0;
+    max-width: 100%;
+}
+
+/* A white canvas like the one in a real sim, so the equipment is judged on the same background */
+.shape canvas {
+    display: block;
+    max-width: 100%;
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: 6px;
+}
+
+.shape figcaption {
+    margin-top: 2px;
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--i-textMuted);
+}
+    </style>
+</head>
+
+<body>
+    <header class="top">
+        <div>
+            <h1>Skuulabs showcase</h1>
+            <p class="note">Internal page. Every token, material and component in the shared library.</p>
+        </div>
+        <!-- Draws a dashed outline of the box each component was given -->
+        <label class="toggle" title="Draw the box each component was given">
+            <input type="checkbox" id="show-boxes"> Show boxes
+        </label>
+    </header>
+
+    <main>
+        <section>
+            <h2>Tokens</h2>
+            <div id="token-colours" class="grid"></div>
+            <h3>Other values</h3>
+            <dl id="token-other"></dl>
+        </section>
+
+        <!-- JavaScript fills these two from the registry, window.SKUU_LAB -->
+        <section>
+            <h2>Materials</h2>
+            <div id="materials"></div>
+        </section>
+
+        <section>
+            <h2>Components</h2>
+            <div id="components"></div>
+        </section>
+    </main>
+
+    <script>window.SKUU_TOKENS = {"apparatus":{"glass":"#D6EFFF","glassHighlight":"#FFFFFF","glassOutline":"#3B4A5A","water":"#8ACEFF","waterDeep":"#3D97E0","solidFace":"#B8C2CC","solidSide":"#8D99A5","shadow":"rgba(15, 23, 42, 0.18)","outlineWidth":"2px"},"interface":{"text":"#1F2937","textMuted":"#5B6573","surface":"#FFFFFF","background":"#F4F6F8","border":"#D5DCE3","accent":"#0F766E","onAccent":"#FFFFFF","focus":"#1D4ED8","radius":"8px","fontStack":"system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"},"motion":{"fast":"120ms","normal":"240ms"}};</script>
+    <script>// ----- component: glassware/graduated-cylinder.js -----
+/*
+ * GRADUATED CYLINDER: contract
+ *
+ * Inputs (props):
+ *   volume    water volume in cm3 (default 0)
+ *   capacity  cylinder capacity in cm3 (default 100)
+ *   (meniscus and zoom arrive in a later stage)
+ *
+ * What it does:
+ *   - draws the glass and the scale inside the box it is given
+ *   - measures: yForVolume() turns a volume into a Y position, so the water, the
+ *     objects and the scale all line up exactly
+ *   - draws in TWO passes: drawGlassBack (tint), then whatever sits inside (water, objects),
+ *     then drawGlassFront (outline). That order is what makes water look like it is inside the glass.
+ *
+ * What it does NOT do:
+ *   - no physics. It never decides whether water overflows. It only turns numbers into pixels.
+ *   - no fixed pixel sizes. Everything is a proportion of the box, so it works in any shape.
+ */
+window.SKUU_LAB = window.SKUU_LAB || {};
+
+(function () {
+  // Debug marks (0 mark, capacity mark, volume line). Turn on while checking the numbers.
+  var DEBUG = false;
+
+  var DEFAULT_CAPACITY = 100;
+  var GLASS_ALPHA = 0.55;   // how see-through the glass tint is
+
+  // Every proportion in one place. W = box width, H = box height.
+  // Keep the tube and centre values you tuned in stage 2 if they differ from these.
+  var P = {
+    tubeWidthOfH: 0.40,     // tube width as a share of H...
+    tubeWidthOfW: 0.40,     // ...but never more than this share of W (the smaller one wins)
+    centreOfW: 0.38,        // tube centre, measured from the left of the box
+    baseWidthOfTube: 1.5,   // base width as a multiple of the tube width
+    baseHeightOfH: 0.05,    // base height
+    shadowRoomOfH: 0.03,    // empty space under the base, for the shadow
+    topOfH: 0.02,           // top of the tube, below the top of the box
+    capacityMarkOfH: 0.10,  // the capacity mark, below the top of the box (leaves headroom)
+    wallOfTube: 0.03,       // glass wall thickness as a share of the tube width
+    // Stage 3 (shares of the tube width unless stated)
+    lipOverhang: 0.10,      // how far the rim sticks out on each side
+    lipHeight: 0.12,        // height of the rim
+    innerCorner: 0.15,      // radius of the rounded bottom corners inside the tube
+    baseCorner: 0.35        // base corner radius, as a share of the base HEIGHT
+  };
+
+  // ---------- Layout: all positions, calculated from the box. Pure maths, no drawing. ----------
+  function layout(box) {
+    var tubeW = Math.min(P.tubeWidthOfH * box.h, P.tubeWidthOfW * box.w);
+    var cx = box.x + P.centreOfW * box.w;
+    var wall = P.wallOfTube * tubeW;
+    var baseW = tubeW * P.baseWidthOfTube;
+    var baseH = P.baseHeightOfH * box.h;
+    var baseBottom = box.y + box.h - P.shadowRoomOfH * box.h;
+    var baseTop = baseBottom - baseH;
+    var tubeTop = box.y + P.topOfH * box.h;
+    var overhang = P.lipOverhang * tubeW;
+    var lipH = P.lipHeight * tubeW;
+    var tubeLeft = cx - tubeW / 2;
+    var tubeRight = cx + tubeW / 2;
+    var y0 = baseTop - wall;                       // the 0 mark: just above the glass floor
+
+    return {
+      cx: cx,
+      tubeW: tubeW,
+      wall: wall,
+      tubeLeft: tubeLeft,
+      tubeRight: tubeRight,
+      tubeTop: tubeTop,
+      tubeBottom: baseTop,                          // the tube sits on the base
+      lipLeft: tubeLeft - overhang,
+      lipRight: tubeRight + overhang,
+      lipTop: tubeTop,
+      lipBottom: tubeTop + lipH,
+      overhang: overhang,
+      baseLeft: cx - baseW / 2,
+      baseRight: cx + baseW / 2,
+      baseTop: baseTop,
+      baseBottom: baseBottom,
+      baseCorner: P.baseCorner * baseH,
+      // The empty space inside the glass (where the water goes)
+      innerLeft: tubeLeft + wall,
+      innerRight: tubeRight - wall,
+      innerTop: tubeTop,
+      innerBottom: y0,
+      innerCorner: P.innerCorner * tubeW,
+      y0: y0,
+      y100: box.y + P.capacityMarkOfH * box.h       // the capacity mark
+    };
+  }
+
+  // Volume to Y. Y grows DOWNWARD on a canvas, so a bigger volume means a smaller Y.
+  // No clamping on purpose: this only converts, the caller decides what is allowed.
+  function yForVolume(lay, volume, capacity) {
+    return lay.y0 - (volume / capacity) * (lay.y0 - lay.y100);
+  }
+
+  // ---------- Path helpers: they build a path, they do not fill or stroke it ----------
+
+  // Walks through a list of corner points, rounding each corner by its own radius r.
+  // arcTo(corner, midpoint of the next edge, r) draws a rounded corner at the first point.
+  function roundedPolygon(ctx, pts) {
+    var n = pts.length;
+    function mid(a, b) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
+    var start = mid(pts[n - 1], pts[0]);
+    ctx.moveTo(start.x, start.y);
+    for (var i = 0; i < n; i++) {
+      var p = pts[i];
+      var m = mid(p, pts[(i + 1) % n]);
+      ctx.arcTo(p.x, p.y, m.x, m.y, p.r);
+    }
+    ctx.closePath();
+  }
+
+  // The whole glass outline as ONE shape: lip, tube and base together, so the tint is
+  // even (no darker band where shapes overlap) and the outline has no lines inside it.
+  function silhouettePath(ctx, lay) {
+    var rl = Math.min(lay.lipBottom - lay.lipTop, lay.overhang) * 0.4;   // small lip corners
+    var rb = lay.baseCorner;
+    roundedPolygon(ctx, [
+      { x: lay.lipLeft,   y: lay.lipTop,    r: rl },
+      { x: lay.lipRight,  y: lay.lipTop,    r: rl },
+      { x: lay.lipRight,  y: lay.lipBottom, r: rl },
+      { x: lay.tubeRight, y: lay.lipBottom, r: 0 },
+      { x: lay.tubeRight, y: lay.baseTop,   r: 0 },
+      { x: lay.baseRight, y: lay.baseTop,   r: rb },
+      { x: lay.baseRight, y: lay.baseBottom, r: rb },
+      { x: lay.baseLeft,  y: lay.baseBottom, r: rb },
+      { x: lay.baseLeft,  y: lay.baseTop,   r: rb },
+      { x: lay.tubeLeft,  y: lay.baseTop,   r: 0 },
+      { x: lay.tubeLeft,  y: lay.lipBottom, r: 0 },
+      { x: lay.lipLeft,   y: lay.lipBottom, r: rl }
+    ]);
+  }
+
+  // The empty space inside the glass, with rounded bottom corners.
+  // The water component clips itself to this shape so liquid never leaks through the glass.
+  function cavityPath(ctx, lay) {
+    var r = lay.innerCorner;
+    ctx.moveTo(lay.innerLeft, lay.innerTop);
+    ctx.lineTo(lay.innerRight, lay.innerTop);
+    ctx.lineTo(lay.innerRight, lay.innerBottom - r);
+    ctx.arcTo(lay.innerRight, lay.innerBottom, lay.innerRight - r, lay.innerBottom, r);
+    ctx.lineTo(lay.innerLeft + r, lay.innerBottom);
+    ctx.arcTo(lay.innerLeft, lay.innerBottom, lay.innerLeft, lay.innerBottom - r, r);
+    ctx.closePath();
+  }
+
+  // ---------- Drawing ----------
+
+  // Back pass: the see-through tint. Drawn BEFORE the water.
+  function drawGlassBack(ctx, box) {
+    var t = window.SKUU_TOKENS.apparatus;
+    var lay = layout(box);
+    ctx.save();
+    ctx.globalAlpha = GLASS_ALPHA;
+    ctx.fillStyle = t.glass;
+    ctx.beginPath();
+    silhouettePath(ctx, lay);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Front pass: the outline. Drawn AFTER the water, so the water looks like it is inside.
+  // (The highlight and shadow join this pass in stage 5.)
+  function drawGlassFront(ctx, box) {
+    var t = window.SKUU_TOKENS.apparatus;
+    var lay = layout(box);
+    ctx.save();
+    ctx.strokeStyle = t.glassOutline;
+    ctx.lineWidth = parseFloat(t.outlineWidth);   // the token is text like '2px', so convert it
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    silhouettePath(ctx, lay);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Debug marks: the 0 mark, the capacity mark and a line at the requested volume
+  function drawDebug(ctx, box, props) {
+    var t = window.SKUU_TOKENS.apparatus;
+    var lay = layout(box);
+    var capacity = props.capacity || DEFAULT_CAPACITY;
+    console.table(lay);
+    ctx.save();
+    ctx.strokeStyle = t.glassOutline;
+    ctx.lineWidth = 1;
+    [lay.y0, lay.y100].forEach(function (y) {
+      ctx.beginPath();
+      ctx.moveTo(lay.tubeLeft - 6, y);
+      ctx.lineTo(lay.tubeRight + 6, y);
+      ctx.stroke();
+    });
+    ctx.strokeStyle = t.water;
+    ctx.lineWidth = 2;
+    var y = yForVolume(lay, props.volume || 0, capacity);
+    ctx.beginPath();
+    ctx.moveTo(lay.tubeLeft, y);
+    ctx.lineTo(lay.tubeRight, y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // The showcase calls this. The sim will call the back pass, then water, then the front pass.
+  function draw(ctx, box, props) {
+    drawGlassBack(ctx, box);
+    // (water and objects will be drawn here in later steps)
+    drawGlassFront(ctx, box);
+    if (DEBUG) drawDebug(ctx, box, props);
+  }
+
+  window.SKUU_LAB.graduatedCylinder = {
+    title: 'Graduated cylinder',
+    category: 'glassware',
+    description: 'Glass measuring cylinder. Inputs: volume (cm3), capacity (cm3), later meniscus and zoom.',
+    layout: layout,
+    yForVolume: yForVolume,
+    cavityPath: cavityPath,
+    drawGlassBack: drawGlassBack,
+    drawGlassFront: drawGlassFront,
+    draw: draw,
+    specimens: [
+      { label: 'Empty',     props: { volume: 0,   capacity: 100 } },
+      { label: 'Half full', props: { volume: 50,  capacity: 100 } },
+      { label: 'Full',      props: { volume: 100, capacity: 100 } }
+    ]
+  };
+})();</script>
+    <script>(function () {
+  var tokens = window.SKUU_TOKENS;
+
+  // ---------- Small helpers ----------
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function isColour(value) {
+    return typeof value === 'string' && (value.indexOf('#') === 0 || value.indexOf('rgb') === 0);
+  }
+
+  // ---------- Tokens section (step 1) ----------
+
+  var colourBox = document.getElementById('token-colours');
+  var otherBox = document.getElementById('token-other');
+
+  Object.keys(tokens).forEach(function (group) {
+    Object.keys(tokens[group]).forEach(function (name) {
+      var value = tokens[group][name];
+      var label = group + ' / ' + name;
+
+      if (isColour(value)) {
+        var card = el('div', 'swatch');
+        var chip = el('div', 'chip');
+        chip.style.background = value;
+        card.appendChild(chip);
+        card.appendChild(el('div', 'name', label));
+        card.appendChild(el('div', 'value', value));
+        colourBox.appendChild(card);
+      } else {
+        otherBox.appendChild(el('dt', null, label));
+        otherBox.appendChild(el('dd', null, value));
+      }
+    });
+  });
+
+  // ---------- Materials and components (step 2) ----------
+
+  var lab = window.SKUU_LAB || {};          // the registry: every component adds itself here
+  var showBoxes = document.getElementById('show-boxes');
+
+  // The three box shapes every specimen is drawn in (sizes in CSS pixels)
+  var SHAPES = [
+    { name: 'Tall',   w: 120, h: 220 },
+    { name: 'Wide',   w: 240, h: 120 },
+    { name: 'Square', w: 160, h: 160 }
+  ];
+  var PAD = 8;                               // space between the canvas edge and the box
+  var CATEGORY_ORDER = ['glassware', 'materials', 'measurement', 'interaction'];
+
+  // One entry per canvas: a function that paints it. Re-run when the checkbox changes.
+  var paintJobs = [];
+
+  // Paint one specimen into one canvas, in one box shape
+  function paint(canvas, component, specimen, shape) {
+    var dpr = window.devicePixelRatio || 1;
+    // More pixels inside the canvas on sharp screens, same size on the page
+    canvas.width = Math.round(shape.w * dpr);
+    canvas.height = Math.round(shape.h * dpr);
+    canvas.style.width = shape.w + 'px';
+    canvas.style.height = shape.h + 'px';
+
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, shape.w, shape.h);
+
+    // The box the component is allowed to draw in
+    var box = { x: PAD, y: PAD, w: shape.w - 2 * PAD, h: shape.h - 2 * PAD };
+
+    // save and restore undo anything the component changes (colours, fonts, transforms)
+    // so one component can never affect the next one.
+    var failure = null;
+    ctx.save();
+    try {
+      component.draw(ctx, box, specimen.props);
+    } catch (err) {
+      failure = err;
+      console.error('Component failed:', specimen.label, err);
+    }
+    ctx.restore();
+
+    // A bug in one component shows up on its own canvas, and every other card still works
+    if (failure) {
+      ctx.save();
+      ctx.fillStyle = tokens.interface.text;
+      ctx.font = '12px ' + tokens.interface.fontStack;
+      ctx.textBaseline = 'top';
+      ctx.fillText('Error:', PAD, PAD, box.w);
+      ctx.fillText(String(failure.message), PAD, PAD + 16, box.w);
+      ctx.restore();
+    }
+
+    // Optional dashed outline of the box
+    if (showBoxes.checked) {
+      ctx.save();
+      ctx.setLineDash([4, 3]);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = tokens.interface.textMuted;
+      ctx.strokeRect(box.x + 0.5, box.y + 0.5, box.w - 1, box.h - 1);
+      ctx.restore();
+    }
+  }
+
+  // Build one card from one component, following the standard contract
+  function makeCard(key, component) {
+    var title = component.title || key;
+    var card = el('article', 'card');
+    card.appendChild(el('h4', null, title));
+    card.appendChild(el('div', 'meta', (component.category || 'uncategorised') + ' · SKUU_LAB.' + key));
+    if (component.description) card.appendChild(el('p', 'desc', component.description));
+
+    // Components with nothing to draw (like a helper) get a card with no canvases
+    var specimens = component.specimens || [];
+    if (typeof component.draw !== 'function' || specimens.length === 0) {
+      card.appendChild(el('p', 'empty', 'Nothing to draw.'));
+      return card;
+    }
+
+    specimens.forEach(function (specimen) {
+      var block = el('div', 'specimen');
+      block.appendChild(el('div', 'specimen-label', specimen.label));
+      var row = el('div', 'shapes');
+
+      SHAPES.forEach(function (shape) {
+        var figure = el('figure', 'shape');
+        var canvas = document.createElement('canvas');
+        canvas.setAttribute('role', 'img');
+        canvas.setAttribute('aria-label', title + ', ' + specimen.label + ', ' + shape.name + ' box');
+        figure.appendChild(canvas);
+        figure.appendChild(el('figcaption', null, shape.name));
+        row.appendChild(figure);
+
+        paintJobs.push(function () { paint(canvas, component, specimen, shape); });
+      });
+
+      block.appendChild(row);
+      card.appendChild(block);
+    });
+    return card;
+  }
+
+  // Turn the registry into a list, then split it into the two sections
+  var entries = Object.keys(lab).map(function (key) { return { key: key, component: lab[key] }; });
+  var materials = entries.filter(function (e) { return e.component.category === 'materials'; });
+  var others = entries.filter(function (e) { return e.component.category !== 'materials'; });
+
+  // Materials: one grid of cards
+  var materialsBox = document.getElementById('materials');
+  if (materials.length === 0) {
+    materialsBox.appendChild(el('p', 'empty', 'No materials yet.'));
+  } else {
+    var materialGrid = el('div', 'cards');
+    materials.forEach(function (e) { materialGrid.appendChild(makeCard(e.key, e.component)); });
+    materialsBox.appendChild(materialGrid);
+  }
+
+  // Components: one heading and one grid per category, in a fixed order,
+  // with any unknown categories after the known ones
+  var componentsBox = document.getElementById('components');
+  if (others.length === 0) {
+    componentsBox.appendChild(el('p', 'empty', 'No components yet.'));
+  } else {
+    var categories = CATEGORY_ORDER.filter(function (c) { return c !== 'materials'; });
+    others.forEach(function (e) {
+      var c = e.component.category || 'uncategorised';
+      if (categories.indexOf(c) === -1) categories.push(c);
+    });
+
+    categories.forEach(function (category) {
+      var inCategory = others.filter(function (e) { return (e.component.category || 'uncategorised') === category; });
+      if (inCategory.length === 0) return;
+      componentsBox.appendChild(el('h3', null, category));
+      var grid = el('div', 'cards');
+      inCategory.forEach(function (e) { grid.appendChild(makeCard(e.key, e.component)); });
+      componentsBox.appendChild(grid);
+    });
+  }
+
+  // Paint everything once, and again whenever the checkbox changes
+  function paintAll() { paintJobs.forEach(function (job) { job(); }); }
+  showBoxes.addEventListener('change', paintAll);
+  paintAll();
+})();</script>
+</body>
+
+</html>

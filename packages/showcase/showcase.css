@@ -1,0 +1,205 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font: 16px/1.45 var(--i-fontStack);
+    color: var(--i-text);
+    background: var(--i-background);
+}
+
+.top {
+    padding: 16px;
+    background: var(--i-surface);
+    border-bottom: 1px solid var(--i-border);
+}
+
+.top h1 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.note {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: var(--i-textMuted);
+}
+
+main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+section {
+    margin-bottom: 32px;
+}
+
+h2 {
+    margin: 0 0 12px;
+    font-size: 1.1rem;
+}
+
+h3 {
+    margin: 20px 0 8px;
+    font-size: 0.95rem;
+    color: var(--i-textMuted);
+}
+
+/* auto-fill with a 160px minimum: the browser works out how many columns fit,
+   so phones get one or two and wide screens get many, with no media query */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.empty {
+    margin: 0;
+    color: var(--i-textMuted);
+}
+
+.swatch {
+    padding: 10px;
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: var(--i-radius);
+}
+
+/* The 2px border keeps near-white colours, like the glass highlight, visible on a white card */
+.chip {
+    height: 56px;
+    margin-bottom: 8px;
+    border: 2px solid var(--i-border);
+    border-radius: 6px;
+}
+
+.name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.value {
+    font-size: 0.8rem;
+    color: var(--i-textMuted);
+    overflow-wrap: anywhere;
+}
+
+/* A simple two-column list of name and value */
+dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 16px;
+    margin: 0;
+}
+
+dt {
+    font-weight: 600;
+}
+
+dd {
+    margin: 0;
+    color: var(--i-textMuted);
+    overflow-wrap: anywhere;
+}
+
+/* ---------- Step 2: toolbar and cards ---------- */
+
+/* The header now holds the title block on the left and the checkbox on the right */
+.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.toggle input {
+    width: 20px;
+    height: 20px;
+}
+
+:focus-visible {
+    outline: 3px solid var(--i-focus);
+    outline-offset: 2px;
+}
+
+/* One grid of cards per group */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.card {
+    padding: 14px;
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: var(--i-radius);
+    min-width: 0;
+}
+
+.card h4 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.meta {
+    margin: 2px 0 6px;
+    font-size: 0.8rem;
+    color: var(--i-textMuted);
+}
+
+.desc {
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+}
+
+.specimen {
+    margin-top: 12px;
+}
+
+.specimen-label {
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+/* The three box shapes sit in a row and wrap onto new lines on narrow screens */
+.shapes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.shape {
+    margin: 0;
+    max-width: 100%;
+}
+
+/* A white canvas like the one in a real sim, so the equipment is judged on the same background */
+.shape canvas {
+    display: block;
+    max-width: 100%;
+    background: var(--i-surface);
+    border: 1px solid var(--i-border);
+    border-radius: 6px;
+}
+
+.shape figcaption {
+    margin-top: 2px;
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--i-textMuted);
+}

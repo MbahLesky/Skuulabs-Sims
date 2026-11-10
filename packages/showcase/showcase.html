@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{TITLE}}</title>
+    <style>
+        {{TOKENS_CSS}}
+        {{SHOWCASE_CSS}}
+    </style>
+</head>
+
+<body>
+    <header class="top">
+        <div>
+            <h1>Skuulabs showcase</h1>
+            <p class="note">Internal page. Every token, material and component in the shared library.</p>
+        </div>
+        <!-- Draws a dashed outline of the box each component was given -->
+        <label class="toggle" title="Draw the box each component was given">
+            <input type="checkbox" id="show-boxes"> Show boxes
+        </label>
+    </header>
+
+    <main>
+        <section>
+            <h2>Tokens</h2>
+            <div id="token-colours" class="grid"></div>
+            <h3>Other values</h3>
+            <dl id="token-other"></dl>
+        </section>
+
+        <!-- JavaScript fills these two from the registry, window.SKUU_LAB -->
+        <section>
+            <h2>Materials</h2>
+            <div id="materials"></div>
+        </section>
+
+        <section>
+            <h2>Components</h2>
+            <div id="components"></div>
+        </section>
+    </main>
+
+    <script>{{TOKENS_JS}}</script>
+    <script>{{COMPONENTS_JS}}</script>
+    <script>{{SHOWCASE_JS}}</script>
+</body>
+
+</html>

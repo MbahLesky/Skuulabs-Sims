@@ -43,10 +43,23 @@ Tracking daily progress, architecture decisions, and learning milestones for the
 
 ---
 
-## Day 04 — Mon, Nov 09, 2026 *(Today)*
+## Day 04 — Mon, Nov 09, 2026
 **Focus:** DPR Concepts, Build Pipeline & Density Placeholder
 
 - [x] Explored Device Pixel Ratio (DPR) mechanics, canvas transformations, and `setTransform`.
 - [x] Created `build.js`, along with `sim.config.js` and `sim.js` for the Density simulation placeholder.
 - [x] Built and verified a simple placeholder shell for the Density experiment.
+
+---
+
+## Day 05 — Tue, Nov 10, 2026 *(Today)*
+**Focus:** Lab Components, Showcase Tool & Build Pipeline
+
+- [x] Started the shared `packages/lab-components/` library with the Graduated Cylinder (`graduated-cylinder.js`).
+- [x] Implemented two-pass glass rendering, cavity clipping, and responsive volume-to-Y mapping.
+- [x] Built the `packages/showcase/` package to preview tokens and live apparatus components across different shapes.
+- [x] Updated `build.js` to support the component library and added the `--showcase` build command.
+- [x] Tuned glass and water apparatus tokens in `tokens.js`.
+- [x] Added landscape layout support for short/wide screens in `shell.css`.
+
 

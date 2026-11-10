@@ -17,5 +17,5 @@ window.SKUU_SIM = {
     },
 
     // Called when the learner clicks Restore defaults. Nothing to reset yet.
-    reset: function () { }
+    reset: function () { },
 };

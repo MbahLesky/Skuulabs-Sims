@@ -199,6 +199,26 @@ canvas {
     }
 }
 
+/* SHORT AND WIDE SCREENS (for example a phone in landscape):
+   wider than 860px, so the desktop rules apply, but too short for the desktop lock.
+   The min-width stops this rule from fighting the 860px rule above, which already
+   handles narrow screens. */
+@media (max-height: 520px) and (min-width: 861px) {
+  /* Release the one-screen lock: the page grows with its content and can scroll */
+  .app { height: auto; min-height: 100dvh; overflow: visible; }
+
+  /* Only the page scrolls, not the panel too, because two scroll areas are awkward on touch */
+  .panel { overflow: visible; }
+
+  /* A percentage height has nothing to measure now that the page height is automatic,
+     so give the canvas a fixed height that is still usable */
+  .stage { padding: 8px; }
+  .canvas-wrap { height: 360px; }
+
+  /* Win back a little vertical space from the header and footer */
+  .top, .foot { padding-top: 4px; padding-bottom: 4px; }
+}
+
 /* Respect people who ask their device for less motion */
 @media (prefers-reduced-motion: reduce) {
     * {

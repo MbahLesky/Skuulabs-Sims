@@ -4,11 +4,11 @@
 
 module.exports = {
   apparatus: {
-    glass:          '#DCEBF5',
+    glass:          '#D6EFFF',
     glassHighlight: '#FFFFFF',
     glassOutline:   '#3B4A5A',
-    water:          '#4DA3E0',
-    waterDeep:      '#2F7FBF',
+    water:          '#8ACEFF',
+    waterDeep:      '#3D97E0',
     solidFace:      '#B8C2CC',
     solidSide:      '#8D99A5',
     shadow:         'rgba(15, 23, 42, 0.18)',
