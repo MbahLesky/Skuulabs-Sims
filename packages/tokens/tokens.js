@@ -7,12 +7,14 @@ module.exports = {
     glass:          '#D6EFFF',
     glassHighlight: '#FFFFFF',
     glassOutline:   '#3B4A5A',
-    water:          '#8ACEFF',
-    waterDeep:      '#3D97E0',
+    water:          '#A5DAFF',
+    waterDeep:      '#5FADED',
     solidFace:      '#B8C2CC',
     solidSide:      '#8D99A5',
     shadow:         'rgba(15, 23, 42, 0.18)',
-    outlineWidth:   '2px'
+    outlineWidth:   '2px',
+    shadowFade:         'rgba(15, 23, 42, 0)',       // same colour as shadow, fully transparent
+    glassHighlightFade: 'rgba(255, 255, 255, 0)',    // same colour as glassHighlight, fully transparent
   },
 
   interface: {

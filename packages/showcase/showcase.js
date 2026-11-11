@@ -48,7 +48,8 @@
   var SHAPES = [
     { name: 'Tall',   w: 120, h: 220 },
     { name: 'Wide',   w: 240, h: 120 },
-    { name: 'Square', w: 160, h: 160 }
+    { name: 'Square', w: 160, h: 160 },
+    { name: 'Large',  w: 220, h: 440 }
   ];
   var PAD = 8;                               // space between the canvas edge and the box
   var CATEGORY_ORDER = ['glassware', 'materials', 'measurement', 'interaction'];

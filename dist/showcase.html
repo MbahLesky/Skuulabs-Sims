@@ -10,12 +10,14 @@
   --a-glass: #D6EFFF;
   --a-glassHighlight: #FFFFFF;
   --a-glassOutline: #3B4A5A;
-  --a-water: #8ACEFF;
-  --a-waterDeep: #3D97E0;
+  --a-water: #A5DAFF;
+  --a-waterDeep: #5FADED;
   --a-solidFace: #B8C2CC;
   --a-solidSide: #8D99A5;
   --a-shadow: rgba(15, 23, 42, 0.18);
   --a-outlineWidth: 2px;
+  --a-shadowFade: rgba(15, 23, 42, 0);
+  --a-glassHighlightFade: rgba(255, 255, 255, 0);
   --i-text: #1F2937;
   --i-textMuted: #5B6573;
   --i-surface: #FFFFFF;
@@ -269,7 +271,7 @@ dd {
         </section>
     </main>
 
-    <script>window.SKUU_TOKENS = {"apparatus":{"glass":"#D6EFFF","glassHighlight":"#FFFFFF","glassOutline":"#3B4A5A","water":"#8ACEFF","waterDeep":"#3D97E0","solidFace":"#B8C2CC","solidSide":"#8D99A5","shadow":"rgba(15, 23, 42, 0.18)","outlineWidth":"2px"},"interface":{"text":"#1F2937","textMuted":"#5B6573","surface":"#FFFFFF","background":"#F4F6F8","border":"#D5DCE3","accent":"#0F766E","onAccent":"#FFFFFF","focus":"#1D4ED8","radius":"8px","fontStack":"system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"},"motion":{"fast":"120ms","normal":"240ms"}};</script>
+    <script>window.SKUU_TOKENS = {"apparatus":{"glass":"#D6EFFF","glassHighlight":"#FFFFFF","glassOutline":"#3B4A5A","water":"#A5DAFF","waterDeep":"#5FADED","solidFace":"#B8C2CC","solidSide":"#8D99A5","shadow":"rgba(15, 23, 42, 0.18)","outlineWidth":"2px","shadowFade":"rgba(15, 23, 42, 0)","glassHighlightFade":"rgba(255, 255, 255, 0)"},"interface":{"text":"#1F2937","textMuted":"#5B6573","surface":"#FFFFFF","background":"#F4F6F8","border":"#D5DCE3","accent":"#0F766E","onAccent":"#FFFFFF","focus":"#1D4ED8","radius":"8px","fontStack":"system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"},"motion":{"fast":"120ms","normal":"240ms"}};</script>
     <script>// ----- component: glassware/graduated-cylinder.js -----
 /*
  * GRADUATED CYLINDER: contract
@@ -299,12 +301,28 @@ window.SKUU_LAB = window.SKUU_LAB || {};
   var DEFAULT_CAPACITY = 100;
   var GLASS_ALPHA = 0.55;   // how see-through the glass tint is
 
+  // Stage 4: the scale
+  var SCALE = {
+    minorLen: 0.25,        // tick lengths, as shares of the tube width
+    midLen: 0.40,
+    majorLen: 0.55,
+    minorWidth: 0.5,       // line widths, as shares of the outline width token
+    majorWidth: 0.75,
+    minTickGap: 4,        // never draw ticks closer than this many pixels
+    fontOfH: 0.06,         // number size as a share of H...
+    minFont: 9,            // ...but never smaller than this (unreadable)...
+    maxFont: 14,           // ...or bigger than this
+    labelGapOfFont: 1.5,   // numbers must be at least this many font heights apart
+    labelGapOfTube: 0.08,  // gap between the glass and the numbers, as a share of the tube width...
+    labelGapMin: 5         // ...but never less than this many pixels
+  };
+
   // Every proportion in one place. W = box width, H = box height.
   // Keep the tube and centre values you tuned in stage 2 if they differ from these.
   var P = {
-    tubeWidthOfH: 0.40,     // tube width as a share of H...
+    tubeWidthOfH: 0.50,     // tube width as a share of H...
     tubeWidthOfW: 0.40,     // ...but never more than this share of W (the smaller one wins)
-    centreOfW: 0.38,        // tube centre, measured from the left of the box
+    centreOfW: 0.33,        // tube centre, measured from the left of the box
     baseWidthOfTube: 1.5,   // base width as a multiple of the tube width
     baseHeightOfH: 0.05,    // base height
     shadowRoomOfH: 0.03,    // empty space under the base, for the shadow
@@ -314,8 +332,14 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     // Stage 3 (shares of the tube width unless stated)
     lipOverhang: 0.10,      // how far the rim sticks out on each side
     lipHeight: 0.12,        // height of the rim
-    innerCorner: 0.15,      // radius of the rounded bottom corners inside the tube
-    baseCorner: 0.35        // base corner radius, as a share of the base HEIGHT
+    innerCorner: 0.08,      // radius of the rounded bottom corners inside the tube
+    baseCorner: 0.35,        // base corner radius, as a share of the base HEIGHT
+        // Stage 5
+    shadowWidthOfBase: 0.58, // half-width of the shadow, as a share of the base width
+    highlightWidth: 0.12,    // highlight strip width, as a share of the tube width
+    highlightInset: 0.12,    // gap between the left wall and the highlight (same share)
+    highlightTop: 0.04,      // start of the highlight, below the rim (share of the glass height)
+    highlightBottom: 0.06    // end of the highlight, above the floor (share of the glass height)
   };
 
   // ---------- Layout: all positions, calculated from the box. Pure maths, no drawing. ----------
@@ -358,6 +382,8 @@ window.SKUU_LAB = window.SKUU_LAB || {};
       innerTop: tubeTop,
       innerBottom: y0,
       innerCorner: P.innerCorner * tubeW,
+      boxLeft: box.x,                               // the edges of the box we were given
+      boxBottom: box.y + box.h,
       y0: y0,
       y100: box.y + P.capacityMarkOfH * box.h       // the capacity mark
     };
@@ -392,18 +418,18 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     var rl = Math.min(lay.lipBottom - lay.lipTop, lay.overhang) * 0.4;   // small lip corners
     var rb = lay.baseCorner;
     roundedPolygon(ctx, [
-      { x: lay.lipLeft,   y: lay.lipTop,    r: rl },
-      { x: lay.lipRight,  y: lay.lipTop,    r: rl },
-      { x: lay.lipRight,  y: lay.lipBottom, r: rl },
+      { x: lay.lipLeft, y: lay.lipTop, r: rl },
+      { x: lay.lipRight, y: lay.lipTop, r: rl },
+      { x: lay.lipRight, y: lay.lipBottom, r: rl },
       { x: lay.tubeRight, y: lay.lipBottom, r: 0 },
-      { x: lay.tubeRight, y: lay.baseTop,   r: 0 },
-      { x: lay.baseRight, y: lay.baseTop,   r: rb },
+      { x: lay.tubeRight, y: lay.baseTop, r: 0 },
+      { x: lay.baseRight, y: lay.baseTop, r: rb },
       { x: lay.baseRight, y: lay.baseBottom, r: rb },
-      { x: lay.baseLeft,  y: lay.baseBottom, r: rb },
-      { x: lay.baseLeft,  y: lay.baseTop,   r: rb },
-      { x: lay.tubeLeft,  y: lay.baseTop,   r: 0 },
-      { x: lay.tubeLeft,  y: lay.lipBottom, r: 0 },
-      { x: lay.lipLeft,   y: lay.lipBottom, r: rl }
+      { x: lay.baseLeft, y: lay.baseBottom, r: rb },
+      { x: lay.baseLeft, y: lay.baseTop, r: rb },
+      { x: lay.tubeLeft, y: lay.baseTop, r: 0 },
+      { x: lay.tubeLeft, y: lay.lipBottom, r: 0 },
+      { x: lay.lipLeft, y: lay.lipBottom, r: rl }
     ]);
   }
 
@@ -422,10 +448,11 @@ window.SKUU_LAB = window.SKUU_LAB || {};
 
   // ---------- Drawing ----------
 
-  // Back pass: the see-through tint. Drawn BEFORE the water.
+  // Back pass: the shadow, then the see-through tint. Drawn BEFORE the water.
   function drawGlassBack(ctx, box) {
     var t = window.SKUU_TOKENS.apparatus;
     var lay = layout(box);
+    drawShadow(ctx, lay);                         // the shadow goes first, the glass sits on it
     ctx.save();
     ctx.globalAlpha = GLASS_ALPHA;
     ctx.fillStyle = t.glass;
@@ -435,8 +462,8 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     ctx.restore();
   }
 
-  // Front pass: the outline. Drawn AFTER the water, so the water looks like it is inside.
-  // (The highlight and shadow join this pass in stage 5.)
+  // Front pass: the outline, then the highlight. Drawn AFTER the water,
+  // so the water looks like it is inside the glass.
   function drawGlassFront(ctx, box) {
     var t = window.SKUU_TOKENS.apparatus;
     var lay = layout(box);
@@ -447,6 +474,124 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     ctx.beginPath();
     silhouettePath(ctx, lay);
     ctx.stroke();
+    ctx.restore();
+    drawHighlight(ctx, lay);                      // over the water, so it looks like light on glass
+  }
+
+  // ---------- Water ----------
+
+  var warnedNoWater = false;
+
+  // Asks the shared water component to fill the cylinder. The cylinder only works out WHERE
+  // the surface is (yForVolume) and hands over its inside shape. The look comes from water.js.
+  function drawWater(ctx, box, props) {
+    var water = window.SKUU_LAB.water;
+    if (!water) {
+      if (!warnedNoWater) {
+        console.warn('graduated-cylinder: materials/water is not loaded. Add it to the sim components list.');
+        warnedNoWater = true;
+      }
+      return;
+    }
+    var lay = layout(box);
+    var capacity = props.capacity || DEFAULT_CAPACITY;
+    water.fill(ctx, {
+      clip: function (c) { cavityPath(c, lay); },
+      left: lay.innerLeft,
+      right: lay.innerRight,
+      surfaceY: yForVolume(lay, props.volume || 0, capacity),
+      bottomY: lay.innerBottom
+    });
+  }
+
+  // ---------- The scale: ticks and numbers ----------
+
+  // Returns the first step in the list that leaves at least minGap pixels between marks,
+  // or null if none does. If an accept function is given, steps it rejects are skipped.
+  function pickStep(candidates, pxPerUnit, minGap, accept) {
+    for (var i = 0; i < candidates.length; i++) {
+      if (accept && !accept(candidates[i])) continue;
+      if (candidates[i] * pxPerUnit >= minGap) return candidates[i];
+    }
+    return null;
+  }
+
+  // Drawn LAST, so the ticks sit on top of the water. Every tick position comes from yForVolume.
+  // Drawn LAST, so the ticks sit on top of the water. Every tick position comes from yForVolume.
+  function drawScale(ctx, box, props) {
+    var t = window.SKUU_TOKENS;
+    var lay = layout(box);
+    var capacity = Math.floor(props.capacity || DEFAULT_CAPACITY);
+    var pxPerUnit = (lay.y0 - lay.y100) / capacity;   // how many pixels one cm3 takes
+
+    // Big box: a tick every 1. Smaller box: every 5 or 10. Never closer than minTickGap.
+    var tickStep = pickStep([1, 5, 10], pxPerUnit, SCALE.minTickGap) || 10;
+
+    // Number size, then how often we can afford a number without overlap.
+    // If no step fits, labelStep is null and the numbers are hidden (ticks stay).
+    var font = Math.max(SCALE.minFont, Math.min(SCALE.maxFont, SCALE.fontOfH * box.h));
+    // Prefer a step that divides the capacity, so the top mark always gets its number.
+    var labelGap = SCALE.labelGapOfFont * font;
+    var labelStep =
+      pickStep([10, 20, 50, 100], pxPerUnit, labelGap, function (s) { return capacity % s === 0; }) ||
+      pickStep([10, 20, 50, 100], pxPerUnit, labelGap);
+
+    var outline = parseFloat(t.apparatus.outlineWidth);
+    // Numbers start past the rim AND the base, whichever sticks out further
+    var numberGap = Math.max(SCALE.labelGapMin, SCALE.labelGapOfTube * lay.tubeW);
+    var labelX = Math.max(lay.lipRight, lay.baseRight) + numberGap;
+    var room = box.x + box.w - labelX;                // space available for the numbers
+
+    ctx.save();
+    ctx.strokeStyle = t.apparatus.glassOutline;
+    ctx.fillStyle = t.interface.text;
+    ctx.font = font + 'px ' + t.interface.fontStack;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+
+    // Tick hierarchy: numbered ticks are the longest, then a middle level, then the rest.
+    // The levels come from the steps chosen above, so the scale looks right at any size.
+    var majorStep = labelStep || 10;
+    var midStep = null;
+    [50, 20, 10, 5].forEach(function (c) {
+      if (midStep === null && c < majorStep && majorStep % c === 0 && c % tickStep === 0) midStep = c;
+    });
+
+    var topLabelY = null;                             // where the highest number was drawn
+
+    for (var v = 0; v <= capacity; v++) {
+      if (v % tickStep !== 0) continue;               // skip volumes that get no tick
+
+      var y = yForVolume(lay, v, capacity);
+      // % is the remainder: 20 % 10 is 0, so 20 is a multiple of 10
+      var level = (v % majorStep === 0) ? 2 : (midStep && v % midStep === 0) ? 1 : 0;
+      var len = [SCALE.minorLen, SCALE.midLen, SCALE.majorLen][level] * lay.tubeW;
+
+      // Ticks start at the inside of the right wall and point inward
+      ctx.lineWidth = outline * (level === 2 ? SCALE.majorWidth : SCALE.minorWidth);
+      ctx.beginPath();
+      ctx.moveTo(lay.innerRight - len, y);
+      ctx.lineTo(lay.innerRight, y);
+      ctx.stroke();
+
+      // A number on every labelStep, if it fits in the space to the right
+      if (labelStep && v % labelStep === 0) {
+        var text = String(v);
+        if (ctx.measureText(text).width <= room) {
+          ctx.fillText(text, labelX, y);
+          topLabelY = y;
+        }
+      }
+    }
+
+    // The unit, above the top number. It is the same in English and French, so no translation.
+    if (topLabelY !== null) {
+      var unitY = topLabelY - font * 1.3;
+      var unit = 'cm\u00B3';
+      if (unitY >= box.y + font / 2 && ctx.measureText(unit).width <= room) {
+        ctx.fillText(unit, labelX, unitY);
+      }
+    }
     ctx.restore();
   }
 
@@ -478,9 +623,58 @@ window.SKUU_LAB = window.SKUU_LAB || {};
   // The showcase calls this. The sim will call the back pass, then water, then the front pass.
   function draw(ctx, box, props) {
     drawGlassBack(ctx, box);
-    // (water and objects will be drawn here in later steps)
+    drawWater(ctx, box, props);                       // inside the glass
+    // (objects will be drawn here in a later step)
     drawGlassFront(ctx, box);
+    drawScale(ctx, box, props);                       // on top of everything else
     if (DEBUG) drawDebug(ctx, box, props);
+  }
+
+    // A soft shadow on the surface under the foot. Drawn first, so the glass sits on top of it.
+  // A gradient is used instead of shadowBlur, because blur is slow on low-end phones.
+  function drawShadow(ctx, lay) {
+    var t = window.SKUU_TOKENS.apparatus;
+    var ry = lay.boxBottom - lay.baseBottom;                      // the room we reserved under the foot
+    var rx = Math.min(P.shadowWidthOfBase * (lay.baseRight - lay.baseLeft), lay.cx - lay.boxLeft);
+    if (ry < 1 || rx < 1) return;                                 // no room: skip
+
+    ctx.save();
+    ctx.translate(lay.cx, lay.baseBottom);                        // origin at the middle of the foot's bottom edge
+    ctx.scale(1, ry / rx);                                        // squash a circle into an ellipse
+    var gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+    gradient.addColorStop(0, t.shadow);                           // darkest in the middle...
+    gradient.addColorStop(1, t.shadowFade);                       // ...fading to nothing at the edge
+    ctx.fillStyle = gradient;
+    ctx.fillRect(-rx, 0, 2 * rx, rx);                             // lower half only (y from 0 down)
+    ctx.restore();
+  }
+
+  // A light strip down the inside of the left wall, drawn over the water.
+  function drawHighlight(ctx, lay) {
+    var t = window.SKUU_TOKENS.apparatus;
+    var w = P.highlightWidth * lay.tubeW;
+    if (w < 1.5) return;                                          // too thin to look good: skip
+
+    var span = lay.innerBottom - lay.lipBottom;                   // the height of the glass
+    var x = lay.innerLeft + P.highlightInset * lay.tubeW;
+    var top = lay.lipBottom + P.highlightTop * span;
+    var bottom = lay.innerBottom - P.highlightBottom * span;
+
+    ctx.save();
+    ctx.globalAlpha = 0.7;
+    var gradient = ctx.createLinearGradient(0, top, 0, bottom);
+    gradient.addColorStop(0, t.glassHighlight);                   // brightest near the top...
+    gradient.addColorStop(1, t.glassHighlightFade);               // ...fading out near the bottom
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    roundedPolygon(ctx, [                                         // a strip with rounded ends
+      { x: x,     y: top,    r: w / 2 },
+      { x: x + w, y: top,    r: w / 2 },
+      { x: x + w, y: bottom, r: w / 2 },
+      { x: x,     y: bottom, r: w / 2 }
+    ]);
+    ctx.fill();
+    ctx.restore();
   }
 
   window.SKUU_LAB.graduatedCylinder = {
@@ -492,11 +686,110 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     cavityPath: cavityPath,
     drawGlassBack: drawGlassBack,
     drawGlassFront: drawGlassFront,
+    drawScale: drawScale,
+    draw: draw,
+    drawWater: drawWater,
+    specimens: [
+      { label: 'Empty', props: { volume: 0, capacity: 100 } },
+      { label: 'Half full', props: { volume: 50, capacity: 100 } },
+      { label: 'Full', props: { volume: 100, capacity: 100 } },
+      { label: '250 cm3 cylinder', props: { volume: 125, capacity: 250 } }
+    ]
+  };
+})();
+// ----- component: materials/water.js -----
+/*
+ * WATER: contract
+ *
+ * The one liquid every container uses, so water looks the same in every sim.
+ *
+ * fill(ctx, region): the real function. A container calls it with:
+ *   clip      a function that builds the container's INSIDE shape as a path
+ *   left      left edge of the liquid area (x)
+ *   right     right edge of the liquid area (x)
+ *   surfaceY  where the water surface is (y)
+ *   bottomY   where the liquid area ends at the bottom (y)
+ *
+ * draw(ctx, box, props): only for the showcase. It draws a plain tank and fills it
+ *   props.fill = how full, from 0 to 1.
+ *
+ * No physics: water never decides its own level. It only draws at the level it is given.
+ */
+window.SKUU_LAB = window.SKUU_LAB || {};
+
+(function () {
+  var WATER_ALPHA = 0.9;   // slightly see-through, so the glass still shows
+
+  function fill(ctx, region) {
+    var t = window.SKUU_TOKENS.apparatus;
+
+    // Nothing to draw when the surface is at or below the bottom (empty)
+    if (region.surfaceY >= region.bottomY) return;
+
+    ctx.save();
+
+    // Clip: after this, anything we draw only appears INSIDE the container's shape.
+    // That is what stops water leaking through the glass and makes it follow rounded corners.
+    ctx.beginPath();
+    region.clip(ctx);
+    ctx.clip();
+
+    // Body of the water: a lighter blue at the top fading to a deeper blue at the bottom
+    var gradient = ctx.createLinearGradient(0, region.surfaceY, 0, region.bottomY);
+    gradient.addColorStop(0, t.water);
+    gradient.addColorStop(1, t.waterDeep);
+    ctx.globalAlpha = WATER_ALPHA;
+    ctx.fillStyle = gradient;
+    ctx.fillRect(region.left, region.surfaceY, region.right - region.left, region.bottomY - region.surfaceY);
+
+    // A thin light line along the surface, so the top edge reads clearly.
+    // It is drawn half a line-width below the surface so it stays fully inside the water.
+    var lineWidth = 1.5;
+    ctx.globalAlpha = 0.7;
+    ctx.strokeStyle = t.glassHighlight;
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    ctx.moveTo(region.left, region.surfaceY + lineWidth / 2);
+    ctx.lineTo(region.right, region.surfaceY + lineWidth / 2);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // Showcase demo: a plain rectangular tank with water in it
+  function draw(ctx, box, props) {
+    var t = window.SKUU_TOKENS.apparatus;
+    var amount = Math.max(0, Math.min(1, props.fill || 0));
+    var lineWidth = parseFloat(t.outlineWidth);
+    var bottom = box.y + box.h;
+    var surfaceY = bottom - amount * box.h;
+
+    fill(ctx, {
+      clip: function (c) { c.rect(box.x, box.y, box.w, box.h); },
+      left: box.x,
+      right: box.x + box.w,
+      surfaceY: surfaceY,
+      bottomY: bottom
+    });
+
+    ctx.save();
+    ctx.strokeStyle = t.glassOutline;
+    ctx.lineWidth = lineWidth;
+    ctx.strokeRect(box.x + lineWidth / 2, box.y + lineWidth / 2, box.w - lineWidth, box.h - lineWidth);
+    ctx.restore();
+  }
+
+  window.SKUU_LAB.water = {
+    title: 'Water',
+    category: 'materials',
+    description: 'The shared liquid. Containers call fill() with their inner shape and the surface level.',
+    fill: fill,
     draw: draw,
     specimens: [
-      { label: 'Empty',     props: { volume: 0,   capacity: 100 } },
-      { label: 'Half full', props: { volume: 50,  capacity: 100 } },
-      { label: 'Full',      props: { volume: 100, capacity: 100 } }
+      { label: 'Empty',     props: { fill: 0 } },
+      { label: '25% full',  props: { fill: 0.25 } },
+      { label: '50% full',  props: { fill: 0.5 } },
+      { label: 'Full',      props: { fill: 1 } }
     ]
   };
 })();</script>
@@ -550,7 +843,8 @@ window.SKUU_LAB = window.SKUU_LAB || {};
   var SHAPES = [
     { name: 'Tall',   w: 120, h: 220 },
     { name: 'Wide',   w: 240, h: 120 },
-    { name: 'Square', w: 160, h: 160 }
+    { name: 'Square', w: 160, h: 160 },
+    { name: 'Large',  w: 220, h: 440 }
   ];
   var PAD = 8;                               // space between the canvas edge and the box
   var CATEGORY_ORDER = ['glassware', 'materials', 'measurement', 'interaction'];

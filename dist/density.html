@@ -13,12 +13,14 @@
   --a-glass: #D6EFFF;
   --a-glassHighlight: #FFFFFF;
   --a-glassOutline: #3B4A5A;
-  --a-water: #8ACEFF;
-  --a-waterDeep: #3D97E0;
+  --a-water: #A5DAFF;
+  --a-waterDeep: #5FADED;
   --a-solidFace: #B8C2CC;
   --a-solidSide: #8D99A5;
   --a-shadow: rgba(15, 23, 42, 0.18);
   --a-outlineWidth: 2px;
+  --a-shadowFade: rgba(15, 23, 42, 0);
+  --a-glassHighlightFade: rgba(255, 255, 255, 0);
   --i-text: #1F2937;
   --i-textMuted: #5B6573;
   --i-surface: #FFFFFF;
@@ -295,32 +297,8 @@ canvas {
         <footer class="foot"><span data-i18n="footer"></span></footer>
     </div>
 
-    <script>window.SKUU_TOKENS = {"apparatus":{"glass":"#D6EFFF","glassHighlight":"#FFFFFF","glassOutline":"#3B4A5A","water":"#8ACEFF","waterDeep":"#3D97E0","solidFace":"#B8C2CC","solidSide":"#8D99A5","shadow":"rgba(15, 23, 42, 0.18)","outlineWidth":"2px"},"interface":{"text":"#1F2937","textMuted":"#5B6573","surface":"#FFFFFF","background":"#F4F6F8","border":"#D5DCE3","accent":"#0F766E","onAccent":"#FFFFFF","focus":"#1D4ED8","radius":"8px","fontStack":"system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"},"motion":{"fast":"120ms","normal":"240ms"}};</script>
-    <script>// ----- component: glassware/test-box.js -----
-console.log('Test component loaded successfully.');
-// ----- component: materials/test-material.js -----
-// TEMPORARY test material. Delete once the real water exists.
-window.SKUU_LAB = window.SKUU_LAB || {};
-window.SKUU_LAB.testMaterial = {
-  title: 'Test material',
-  category: 'materials',
-  description: 'Temporary material to test the Materials section. Draws a circle.',
-
-  draw: function (ctx, box, props) {
-    var t = window.SKUU_TOKENS.apparatus;
-    var r = Math.min(box.w, box.h) / 2;
-    ctx.fillStyle = t[props.colour];
-    ctx.beginPath();
-    ctx.arc(box.x + box.w / 2, box.y + box.h / 2, r, 0, Math.PI * 2);
-    ctx.fill();
-  },
-
-  specimens: [{ label: 'Solid face', props: { colour: 'solidFace' } }]
-};
-// ----- component: interaction/test-helper.js -----
-// TEMPORARY. A component with nothing to draw, to test its card.
-window.SKUU_LAB = window.SKUU_LAB || {};
-window.SKUU_LAB.testHelper = { title: 'Test helper', category: 'interaction', description: 'Has nothing to draw.' };</script>
+    <script>window.SKUU_TOKENS = {"apparatus":{"glass":"#D6EFFF","glassHighlight":"#FFFFFF","glassOutline":"#3B4A5A","water":"#A5DAFF","waterDeep":"#5FADED","solidFace":"#B8C2CC","solidSide":"#8D99A5","shadow":"rgba(15, 23, 42, 0.18)","outlineWidth":"2px","shadowFade":"rgba(15, 23, 42, 0)","glassHighlightFade":"rgba(255, 255, 255, 0)"},"interface":{"text":"#1F2937","textMuted":"#5B6573","surface":"#FFFFFF","background":"#F4F6F8","border":"#D5DCE3","accent":"#0F766E","onAccent":"#FFFFFF","focus":"#1D4ED8","radius":"8px","fontStack":"system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"},"motion":{"fast":"120ms","normal":"240ms"}};</script>
+    <script></script>
     <script>// Config for the Density sim. shell.js reads it through window.SKUU_CONFIG.
 // The id must match the folder name (the slug).
 window.SKUU_CONFIG = {
@@ -337,7 +315,7 @@ window.SKUU_CONFIG = {
         "en": "This simulation allows you to explore the concept of density by manipulating the mass and volume of different objects.",
         "fr": "Cette simulation vous permet d'explorer le concept de densité en manipulant la masse et le volume de différents objets."
     },
-    "components": ['glassware/test-box', 'materials/test-material', 'interaction/test-helper'],
+    "components": [],
     "version": "1.0.0",
 }</script>
     <script>

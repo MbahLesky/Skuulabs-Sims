@@ -52,7 +52,7 @@ Tracking daily progress, architecture decisions, and learning milestones for the
 
 ---
 
-## Day 05 — Tue, Nov 10, 2026 *(Today)*
+## Day 05 — Tue, Nov 10, 2026
 **Focus:** Lab Components, Showcase Tool & Build Pipeline
 
 - [x] Started the shared `packages/lab-components/` library with the Graduated Cylinder (`graduated-cylinder.js`).
@@ -61,5 +61,22 @@ Tracking daily progress, architecture decisions, and learning milestones for the
 - [x] Updated `build.js` to support the component library and added the `--showcase` build command.
 - [x] Tuned glass and water apparatus tokens in `tokens.js`.
 - [x] Added landscape layout support for short/wide screens in `shell.css`.
+
+---
+
+## Day 06 — Wed, Nov 11, 2026 *(Today)*
+**Focus:** Liquid Materials, Scale Graduation & Optical Depth
+
+- [x] Created shared liquid material component `packages/lab-components/materials/water.js`:
+  - Implemented container-agnostic `fill()` with clipping, vertical gradient, and surface line.
+- [x] Completed measurement scale (Stage 4) on `graduated-cylinder.js`:
+  - Added major/mid/minor ticks, dynamic collision-aware number spacing, and `cm³` unit display.
+- [x] Implemented optical depth and realistic lighting (Stage 5):
+  - Soft base contact shadow using performance-friendly radial gradient (avoids heavy `shadowBlur`).
+  - Interior vertical glass highlight reflection strip with rounded ends and fading gradient.
+  - Integrated water rendering inside the cylinder cavity between the back and front glass passes.
+- [x] Added `shadowFade` and `glassHighlightFade` tokens in `tokens.js` for clean alpha gradient stops.
+- [x] Expanded showcase with `Large` specimen format and 250 cm³ cylinder specimen.
+
 
 
