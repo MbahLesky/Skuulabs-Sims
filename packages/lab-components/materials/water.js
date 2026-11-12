@@ -9,6 +9,8 @@
  *   right     right edge of the liquid area (x)
  *   surfaceY  where the water surface is (y)
  *   bottomY   where the liquid area ends at the bottom (y)
+ *  *   alpha         optional: how see-through (default 0.9). Use a low value for a light tint.
+ *   surfaceLine   optional: set to false to skip the light line on the surface
  *
  * draw(ctx, box, props): only for the showcase. It draws a plain tank and fills it
  *   props.fill = how full, from 0 to 1.
@@ -38,20 +40,22 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     var gradient = ctx.createLinearGradient(0, region.surfaceY, 0, region.bottomY);
     gradient.addColorStop(0, t.water);
     gradient.addColorStop(1, t.waterDeep);
-    ctx.globalAlpha = WATER_ALPHA;
+    ctx.globalAlpha = region.alpha === undefined ? WATER_ALPHA : region.alpha;
     ctx.fillStyle = gradient;
     ctx.fillRect(region.left, region.surfaceY, region.right - region.left, region.bottomY - region.surfaceY);
 
-    // A thin light line along the surface, so the top edge reads clearly.
+    // A thin light line along the surface, so the top edge reads clearly (unless switched off).
     // It is drawn half a line-width below the surface so it stays fully inside the water.
-    var lineWidth = 1.5;
-    ctx.globalAlpha = 0.7;
-    ctx.strokeStyle = t.glassHighlight;
-    ctx.lineWidth = lineWidth;
-    ctx.beginPath();
-    ctx.moveTo(region.left, region.surfaceY + lineWidth / 2);
-    ctx.lineTo(region.right, region.surfaceY + lineWidth / 2);
-    ctx.stroke();
+    if (region.surfaceLine !== false) {
+      var lineWidth = 1.5;
+      ctx.globalAlpha = 0.7;
+      ctx.strokeStyle = t.glassHighlight;
+      ctx.lineWidth = lineWidth;
+      ctx.beginPath();
+      ctx.moveTo(region.left, region.surfaceY + lineWidth / 2);
+      ctx.lineTo(region.right, region.surfaceY + lineWidth / 2);
+      ctx.stroke();
+    }
 
     ctx.restore();
   }

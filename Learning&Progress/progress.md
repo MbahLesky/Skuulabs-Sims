@@ -64,7 +64,7 @@ Tracking daily progress, architecture decisions, and learning milestones for the
 
 ---
 
-## Day 06 — Wed, Nov 11, 2026 *(Today)*
+## Day 06 — Wed, Nov 11, 2026
 **Focus:** Liquid Materials, Scale Graduation & Optical Depth
 
 - [x] Created shared liquid material component `packages/lab-components/materials/water.js`:
@@ -77,6 +77,23 @@ Tracking daily progress, architecture decisions, and learning milestones for the
   - Integrated water rendering inside the cylinder cavity between the back and front glass passes.
 - [x] Added `shadowFade` and `glassHighlightFade` tokens in `tokens.js` for clean alpha gradient stops.
 - [x] Expanded showcase with `Large` specimen format and 250 cm³ cylinder specimen.
+
+---
+
+## Day 07 — Thu, Nov 12, 2026 *(Today)*
+**Focus:** Solid Materials, Shading Models & Submerged Object Rendering
+
+- [x] Created `packages/lab-components/materials/solid-object.js`:
+  - Built 3D block rendering with smooth directional face-to-side gradient shading (`sideFrom` to `sideTo`).
+  - Added soft top-surface highlight glow using an elliptical radial gradient.
+  - Defined materials registry (Aluminium, Iron, Copper, Glass, Custom) with bilingual labels and densities.
+- [x] Added material color tokens to `tokens.js` for Aluminium, Iron, Copper, and Glass (face and side pairs).
+- [x] Extended `water.js` to support configurable `alpha` and optional `surfaceLine`.
+- [x] Completed Stage 6 on `graduated-cylinder.js` for submerged object rendering:
+  - Calculated proportional `objectBox` standing on cylinder floor matched to water displacement rise.
+  - Implemented semi-transparent underwater tint over submerged portions while keeping above-water portions clear.
+  - Added showcase specimens for various materials and partially/fully submerged states.
+
 
 
 

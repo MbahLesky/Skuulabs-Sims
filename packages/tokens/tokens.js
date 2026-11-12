@@ -15,6 +15,14 @@ module.exports = {
     outlineWidth:   '2px',
     shadowFade:         'rgba(15, 23, 42, 0)',       // same colour as shadow, fully transparent
     glassHighlightFade: 'rgba(255, 255, 255, 0)',    // same colour as glassHighlight, fully transparent
+    solidAluminiumFace: '#D5DCE4',
+    solidAluminiumSide: '#A9B4C0',
+    solidIronFace:      '#556270',
+    solidIronSide:      '#37424F',
+    solidCopperFace:    '#D9823B',
+    solidCopperSide:    '#A85C23',
+    solidGlassFace:     '#B7E0DC',
+    solidGlassSide:     '#8CC6C0',
   },
 
   interface: {

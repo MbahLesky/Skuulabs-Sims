@@ -5,6 +5,8 @@
  *   volume    water volume in cm3 (default 0)
  *   capacity  cylinder capacity in cm3 (default 100)
  *   (meniscus and zoom arrive in a later stage)
+ *  *   object    optional: { material, volume }, a solid standing in the water. The cylinder is
+ *             TOLD the new water level in `volume`, it never works it out.
  *
  * What it does:
  *   - draws the glass and the scale inside the box it is given
@@ -59,12 +61,14 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     lipHeight: 0.12,        // height of the rim
     innerCorner: 0.08,      // radius of the rounded bottom corners inside the tube
     baseCorner: 0.35,        // base corner radius, as a share of the base HEIGHT
-        // Stage 5
+    // Stage 5
     shadowWidthOfBase: 0.58, // half-width of the shadow, as a share of the base width
     highlightWidth: 0.12,    // highlight strip width, as a share of the tube width
     highlightInset: 0.12,    // gap between the left wall and the highlight (same share)
     highlightTop: 0.04,      // start of the highlight, below the rim (share of the glass height)
-    highlightBottom: 0.06    // end of the highlight, above the floor (share of the glass height)
+    highlightBottom: 0.06,    // end of the highlight, above the floor (share of the glass height)
+    // Stage 6
+    objectWidthShare: 0.8    // how much of the inside width an object fills
   };
 
   // ---------- Layout: all positions, calculated from the box. Pure maths, no drawing. ----------
@@ -229,6 +233,66 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     });
   }
 
+  // ---------- Object in the water ----------
+
+  var warnedNoSolid = false;
+
+  // Where the object is drawn: a box standing on the floor, centred in the tube.
+  // The cylinder never works out the new water level, it is TOLD the level (props.volume).
+  // But the object must look consistent with it, so its height comes from its volume:
+  // it fills objectWidthShare of the width, so it must stand 1/objectWidthShare times as
+  // tall as the rise it causes.
+  function objectBox(lay, capacity, object) {
+    var pxPerUnit = (lay.y0 - lay.y100) / capacity;
+    var w = (lay.innerRight - lay.innerLeft) * P.objectWidthShare;
+    var rise = object.volume * pxPerUnit;                      // how far the water rises, in pixels
+    var h = rise / P.objectWidthShare;
+    h = Math.min(h, lay.innerBottom - lay.innerTop);           // never taller than the glass
+    return { x: lay.cx - w / 2, y: lay.innerBottom - h, w: w, h: h };
+  }
+
+  // Draws the object, then a light layer of water over it, so the part under the surface
+  // looks underwater and the part above the surface stays clear.
+  function drawObject(ctx, box, props) {
+    if (!props.object) return;
+    var solid = window.SKUU_LAB.solidObject;
+    if (!solid) {
+      if (!warnedNoSolid) {
+        console.warn('graduated-cylinder: materials/solid-object is not loaded. Add it to the sim components list.');
+        warnedNoSolid = true;
+      }
+      return;
+    }
+
+    var lay = layout(box);
+    var capacity = props.capacity || DEFAULT_CAPACITY;
+    var ob = objectBox(lay, capacity, props.object);
+    if (!(ob.h >= 1)) return;                                  // too small to draw (also catches NaN)
+
+    ctx.save();
+    ctx.beginPath();
+    cavityPath(ctx, lay);
+    ctx.clip();                                                // nothing below can leave the glass
+
+    solid.draw(ctx, ob, { material: props.object.material });
+
+    // The underwater tint: the same water, very see-through, clipped to the object's box.
+    // water.fill clips again, inside our clip, so both limits apply.
+    var water = window.SKUU_LAB.water;
+    if (water) {
+      water.fill(ctx, {
+        clip: function (c) { c.rect(ob.x, ob.y, ob.w, ob.h); },
+        left: ob.x,
+        right: ob.x + ob.w,
+        surfaceY: yForVolume(lay, props.volume || 0, capacity),
+        bottomY: lay.innerBottom,
+        alpha: 0.35,
+        surfaceLine: false
+      });
+    }
+    ctx.restore();
+  }
+
   // ---------- The scale: ticks and numbers ----------
 
   // Returns the first step in the list that leaves at least minGap pixels between marks,
@@ -349,13 +413,13 @@ window.SKUU_LAB = window.SKUU_LAB || {};
   function draw(ctx, box, props) {
     drawGlassBack(ctx, box);
     drawWater(ctx, box, props);                       // inside the glass
-    // (objects will be drawn here in a later step)
+    drawObject(ctx, box, props);                      // in the water, with an underwater tint
     drawGlassFront(ctx, box);
     drawScale(ctx, box, props);                       // on top of everything else
     if (DEBUG) drawDebug(ctx, box, props);
   }
 
-    // A soft shadow on the surface under the foot. Drawn first, so the glass sits on top of it.
+  // A soft shadow on the surface under the foot. Drawn first, so the glass sits on top of it.
   // A gradient is used instead of shadowBlur, because blur is slow on low-end phones.
   function drawShadow(ctx, lay) {
     var t = window.SKUU_TOKENS.apparatus;
@@ -393,10 +457,10 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     ctx.fillStyle = gradient;
     ctx.beginPath();
     roundedPolygon(ctx, [                                         // a strip with rounded ends
-      { x: x,     y: top,    r: w / 2 },
-      { x: x + w, y: top,    r: w / 2 },
+      { x: x, y: top, r: w / 2 },
+      { x: x + w, y: top, r: w / 2 },
       { x: x + w, y: bottom, r: w / 2 },
-      { x: x,     y: bottom, r: w / 2 }
+      { x: x, y: bottom, r: w / 2 }
     ]);
     ctx.fill();
     ctx.restore();
@@ -414,11 +478,17 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     drawScale: drawScale,
     draw: draw,
     drawWater: drawWater,
+    drawObject: drawObject,
+    objectBox: objectBox,
     specimens: [
       { label: 'Empty', props: { volume: 0, capacity: 100 } },
       { label: 'Half full', props: { volume: 50, capacity: 100 } },
       { label: 'Full', props: { volume: 100, capacity: 100 } },
-      { label: '250 cm3 cylinder', props: { volume: 125, capacity: 250 } }
+      { label: '250 cm3 cylinder', props: { volume: 125, capacity: 250 } },
+      { label: 'Iron block, 20 cm3 (level 70)', props: { volume: 70, capacity: 100, object: { material: 'iron', volume: 20 } } },
+      { label: 'Copper block, 40 cm3 (level 80)', props: { volume: 80, capacity: 100, object: { material: 'copper', volume: 40 } } },
+      { label: 'Glass block, 20 cm3 (level 45)', props: { volume: 45, capacity: 100, object: { material: 'glass', volume: 20 } } },
+      { label: 'Not fully underwater', props: { volume: 45, capacity: 100, object: { material: 'aluminium', volume: 40 } } }
     ]
   };
 })();
