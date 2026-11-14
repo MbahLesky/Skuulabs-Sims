@@ -23,6 +23,11 @@ module.exports = {
     solidCopperSide:    '#A85C23',
     solidGlassFace:     '#B7E0DC',
     solidGlassSide:     '#8CC6C0',
+    balanceBody:     '#CBD3DC',
+    balanceBodySide: '#9CA8B6',
+    balancePan:      '#B4BECA',
+    balanceScreen:   '#1B2430',
+    balanceDigits:   '#7CF2B8',
   },
 
   interface: {
@@ -35,7 +40,8 @@ module.exports = {
     onAccent:   '#FFFFFF',
     focus:      '#1D4ED8',
     radius:     '8px',
-    fontStack:  'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif'
+    fontStack:  'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+    fontMono: 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
   },
 
   motion: {

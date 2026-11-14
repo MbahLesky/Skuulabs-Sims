@@ -40,16 +40,6 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     };
     var IDS = ['aluminium', 'iron', 'copper', 'glass', 'custom'];
 
-    // Adds a rounded rectangle to the current path (r must not be more than half the shorter side)
-    function roundedRect(ctx, x, y, w, h, r) {
-        ctx.moveTo(x + r, y);
-        ctx.arcTo(x + w, y, x + w, y + h, r);
-        ctx.arcTo(x + w, y + h, x, y + h, r);
-        ctx.arcTo(x, y + h, x, y, r);
-        ctx.arcTo(x, y, x + w, y, r);
-        ctx.closePath();
-    }
-
     function draw(ctx, box, props) {
         var material = MATERIALS[props.material];
         // Fail loudly: the showcase shows this message on the canvas
@@ -68,7 +58,7 @@ window.SKUU_LAB = window.SKUU_LAB || {};
         var r = short * P.corner;
 
         // The same rounded shape is used three times, so build it in one place
-        function shape() { ctx.beginPath(); roundedRect(ctx, x, y, w, h, r); }
+            function shape() { ctx.beginPath(); window.SKUU_LAB.shapes.roundedRect(ctx, x, y, w, h, r); }
 
         ctx.save();
         ctx.globalAlpha = alpha;

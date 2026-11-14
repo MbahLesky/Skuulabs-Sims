@@ -26,6 +26,11 @@
   --a-solidCopperSide: #A85C23;
   --a-solidGlassFace: #B7E0DC;
   --a-solidGlassSide: #8CC6C0;
+  --a-balanceBody: #CBD3DC;
+  --a-balanceBodySide: #9CA8B6;
+  --a-balancePan: #B4BECA;
+  --a-balanceScreen: #1B2430;
+  --a-balanceDigits: #7CF2B8;
   --i-text: #1F2937;
   --i-textMuted: #5B6573;
   --i-surface: #FFFFFF;
@@ -36,6 +41,7 @@
   --i-focus: #1D4ED8;
   --i-radius: 8px;
   --i-fontStack: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --i-fontMono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --m-fast: 120ms;
   --m-normal: 240ms;
 }
@@ -279,8 +285,58 @@ dd {
         </section>
     </main>
 
-    <script>window.SKUU_TOKENS = {"apparatus":{"glass":"#D6EFFF","glassHighlight":"#FFFFFF","glassOutline":"#3B4A5A","water":"#A5DAFF","waterDeep":"#5FADED","solidFace":"#B8C2CC","solidSide":"#8D99A5","shadow":"rgba(15, 23, 42, 0.18)","outlineWidth":"2px","shadowFade":"rgba(15, 23, 42, 0)","glassHighlightFade":"rgba(255, 255, 255, 0)","solidAluminiumFace":"#D5DCE4","solidAluminiumSide":"#A9B4C0","solidIronFace":"#556270","solidIronSide":"#37424F","solidCopperFace":"#D9823B","solidCopperSide":"#A85C23","solidGlassFace":"#B7E0DC","solidGlassSide":"#8CC6C0"},"interface":{"text":"#1F2937","textMuted":"#5B6573","surface":"#FFFFFF","background":"#F4F6F8","border":"#D5DCE3","accent":"#0F766E","onAccent":"#FFFFFF","focus":"#1D4ED8","radius":"8px","fontStack":"system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif"},"motion":{"fast":"120ms","normal":"240ms"}};</script>
-    <script>// ----- component: glassware/graduated-cylinder.js -----
+    <script>window.SKUU_TOKENS = {"apparatus":{"glass":"#D6EFFF","glassHighlight":"#FFFFFF","glassOutline":"#3B4A5A","water":"#A5DAFF","waterDeep":"#5FADED","solidFace":"#B8C2CC","solidSide":"#8D99A5","shadow":"rgba(15, 23, 42, 0.18)","outlineWidth":"2px","shadowFade":"rgba(15, 23, 42, 0)","glassHighlightFade":"rgba(255, 255, 255, 0)","solidAluminiumFace":"#D5DCE4","solidAluminiumSide":"#A9B4C0","solidIronFace":"#556270","solidIronSide":"#37424F","solidCopperFace":"#D9823B","solidCopperSide":"#A85C23","solidGlassFace":"#B7E0DC","solidGlassSide":"#8CC6C0","balanceBody":"#CBD3DC","balanceBodySide":"#9CA8B6","balancePan":"#B4BECA","balanceScreen":"#1B2430","balanceDigits":"#7CF2B8"},"interface":{"text":"#1F2937","textMuted":"#5B6573","surface":"#FFFFFF","background":"#F4F6F8","border":"#D5DCE3","accent":"#0F766E","onAccent":"#FFFFFF","focus":"#1D4ED8","radius":"8px","fontStack":"system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif","fontMono":"ui-monospace, SFMono-Regular, Menlo, Consolas, \"Liberation Mono\", monospace"},"motion":{"fast":"120ms","normal":"240ms"}};</script>
+    <script>// ----- component: core/shapes.js -----
+/*
+ * SHARED DRAWING HELPERS
+ *
+ * Small drawing tools used by more than one component. They draw nothing on their own,
+ * so this card in the showcase has no pictures. Components call them while drawing.
+ * The build always includes everything in the core folder, so sims never list it.
+ */
+window.SKUU_LAB = window.SKUU_LAB || {};
+
+(function () {
+    // Adds a rounded rectangle to the current path. It does not fill or stroke it.
+    // r must not be more than half the shorter side.
+    function roundedRect(ctx, x, y, w, h, r) {
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    // A soft shadow on the surface under an object: the lower half of a fading ellipse.
+    //   cx, y   the middle of the object's bottom edge
+    //   rx      how far the shadow reaches sideways
+    //   ry      how far it reaches downward
+    // A gradient is used instead of shadowBlur, because blur is slow on low-end phones.
+    function softShadow(ctx, cx, y, rx, ry) {
+        var t = window.SKUU_TOKENS.apparatus;
+        if (ry < 1 || rx < 1) return;                                 // no room: skip
+
+        ctx.save();
+        ctx.translate(cx, y);                                         // origin at the object's bottom edge
+        ctx.scale(1, ry / rx);                                        // squash a circle into an ellipse
+        var gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
+        gradient.addColorStop(0, t.shadow);                           // darkest in the middle...
+        gradient.addColorStop(1, t.shadowFade);                       // ...fading to nothing at the edge
+        ctx.fillStyle = gradient;
+        ctx.fillRect(-rx, 0, 2 * rx, rx);                             // lower half only (y from 0 down)
+        ctx.restore();
+    }
+
+    window.SKUU_LAB.shapes = {
+        title: 'Shared drawing helpers',
+        category: 'helpers',
+        description: 'roundedRect and softShadow, used by several components. Draws nothing by itself.',
+        roundedRect: roundedRect,
+        softShadow: softShadow
+    };
+})();
+// ----- component: glassware/graduated-cylinder.js -----
 /*
  * GRADUATED CYLINDER: contract
  *
@@ -703,22 +759,11 @@ window.SKUU_LAB = window.SKUU_LAB || {};
   }
 
   // A soft shadow on the surface under the foot. Drawn first, so the glass sits on top of it.
-  // A gradient is used instead of shadowBlur, because blur is slow on low-end phones.
+  // The drawing itself is the shared softShadow helper. The cylinder only says where and how big.
   function drawShadow(ctx, lay) {
-    var t = window.SKUU_TOKENS.apparatus;
     var ry = lay.boxBottom - lay.baseBottom;                      // the room we reserved under the foot
     var rx = Math.min(P.shadowWidthOfBase * (lay.baseRight - lay.baseLeft), lay.cx - lay.boxLeft);
-    if (ry < 1 || rx < 1) return;                                 // no room: skip
-
-    ctx.save();
-    ctx.translate(lay.cx, lay.baseBottom);                        // origin at the middle of the foot's bottom edge
-    ctx.scale(1, ry / rx);                                        // squash a circle into an ellipse
-    var gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
-    gradient.addColorStop(0, t.shadow);                           // darkest in the middle...
-    gradient.addColorStop(1, t.shadowFade);                       // ...fading to nothing at the edge
-    ctx.fillStyle = gradient;
-    ctx.fillRect(-rx, 0, 2 * rx, rx);                             // lower half only (y from 0 down)
-    ctx.restore();
+    window.SKUU_LAB.shapes.softShadow(ctx, lay.cx, lay.baseBottom, rx, ry);
   }
 
   // A light strip down the inside of the left wall, drawn over the water.
@@ -818,16 +863,6 @@ window.SKUU_LAB = window.SKUU_LAB || {};
     };
     var IDS = ['aluminium', 'iron', 'copper', 'glass', 'custom'];
 
-    // Adds a rounded rectangle to the current path (r must not be more than half the shorter side)
-    function roundedRect(ctx, x, y, w, h, r) {
-        ctx.moveTo(x + r, y);
-        ctx.arcTo(x + w, y, x + w, y + h, r);
-        ctx.arcTo(x + w, y + h, x, y + h, r);
-        ctx.arcTo(x, y + h, x, y, r);
-        ctx.arcTo(x, y, x + w, y, r);
-        ctx.closePath();
-    }
-
     function draw(ctx, box, props) {
         var material = MATERIALS[props.material];
         // Fail loudly: the showcase shows this message on the canvas
@@ -846,7 +881,7 @@ window.SKUU_LAB = window.SKUU_LAB || {};
         var r = short * P.corner;
 
         // The same rounded shape is used three times, so build it in one place
-        function shape() { ctx.beginPath(); roundedRect(ctx, x, y, w, h, r); }
+            function shape() { ctx.beginPath(); window.SKUU_LAB.shapes.roundedRect(ctx, x, y, w, h, r); }
 
         ctx.save();
         ctx.globalAlpha = alpha;
@@ -999,6 +1034,172 @@ window.SKUU_LAB = window.SKUU_LAB || {};
       { label: '25% full',  props: { fill: 0.25 } },
       { label: '50% full',  props: { fill: 0.5 } },
       { label: 'Full',      props: { fill: 1 } }
+    ]
+  };
+})();
+// ----- component: measurement/mass-balance.js -----
+/*
+ * MASS BALANCE: contract
+ *
+ * A digital top-pan balance: a body with a screen, a post and a flat pan.
+ *
+ * Inputs (props):
+ *   mass      the reading in grams. If missing, the screen shows dashes.
+ *   decimals  decimal places shown on the screen (default 0)
+ *   object    optional { material }: a solid standing on the pan
+ *
+ * What it does:
+ *   - draws the balance and shows the number it is given
+ *   - layout(box) says where the pan's top is and where an object sits on it, so the sim
+ *     knows where a dragged object should land
+ *
+ * What it does NOT do:
+ *   - no physics. It never works out a mass (that is density x volume, in the sim's model).
+ *   - no fixed pixel sizes. The whole balance is drawn at one scale that fits the box.
+ */
+window.SKUU_LAB = window.SKUU_LAB || {};
+
+(function () {
+  var MIN_FONT = 8;        // digits smaller than this (in pixels) are unreadable, so we hide them
+  var warnedNoSolid = false;
+
+  // The balance is designed on a fixed 100 x 80 grid and then scaled to fit the box.
+  // That keeps its proportions the same in any box shape. y grows downward.
+  var DESIGN = { w: 100, h: 80 };
+  var D = {
+    body:   { x: 6,  y: 50, w: 88, h: 24, r: 5 },
+    screen: { x: 12, y: 55, w: 50, h: 14, r: 3 },
+    post:   { x: 46, y: 44, w: 8,  h: 7 },
+    pan:    { x: 20, y: 40, w: 60, h: 4,  r: 2 },
+    object: { w: 24, h: 24 },            // the box an object is drawn in, standing on the pan
+    shadow: { rx: 46, ry: 5 }
+  };
+
+  // All positions in pixels, calculated from the box. Pure maths, no drawing.
+  function layout(box) {
+    var s = Math.min(box.w / DESIGN.w, box.h / DESIGN.h);       // one scale for everything
+    var ox = box.x + (box.w - DESIGN.w * s) / 2;                // centre the balance in the box
+    var oy = box.y + (box.h - DESIGN.h * s) / 2;
+
+    function px(r) {                                            // design units to pixels
+      return { x: ox + r.x * s, y: oy + r.y * s, w: r.w * s, h: r.h * s, r: (r.r || 0) * s };
+    }
+
+    var pan = px(D.pan);
+    var objW = D.object.w * s;
+    var objH = D.object.h * s;
+
+    return {
+      scale: s,
+      body: px(D.body),
+      screen: px(D.screen),
+      post: px(D.post),
+      pan: pan,
+      panTop: pan.y,                                            // the surface an object stands on
+      object: { x: pan.x + pan.w / 2 - objW / 2, y: pan.y - objH, w: objW, h: objH },
+      shadow: { cx: ox + (DESIGN.w / 2) * s, y: oy + (D.body.y + D.body.h) * s, rx: D.shadow.rx * s, ry: D.shadow.ry * s }
+    };
+  }
+
+  // The reading on the screen, fitted so it is never clipped
+  function drawReading(ctx, screen, props) {
+    var ti = window.SKUU_TOKENS.interface;
+    var t = window.SKUU_TOKENS.apparatus;
+    var hasMass = props.mass !== undefined && props.mass !== null && !isNaN(props.mass);
+    var text = hasMass ? Number(props.mass).toFixed(props.decimals || 0) + ' g' : '---';
+
+    var pad = screen.h * 0.3;
+    var maxW = screen.w - 2 * pad;
+    var size = screen.h * 0.66;
+    if (size < MIN_FONT) return;                                // too small to read: hide it
+
+    function setFont() { ctx.font = '600 ' + size + 'px ' + ti.fontMono; }
+    setFont();
+    // Shrink until the text fits the screen width, but never below the readable minimum
+    while (size > MIN_FONT && ctx.measureText(text).width > maxW) { size -= 0.5; setFont(); }
+    if (ctx.measureText(text).width > maxW) return;             // still too wide: show nothing, not clipped digits
+
+    ctx.fillStyle = t.balanceDigits;
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, screen.x + screen.w - pad, screen.y + screen.h / 2 + size * 0.04);
+  }
+
+  function draw(ctx, box, props) {
+    var t = window.SKUU_TOKENS.apparatus;
+    var shapes = window.SKUU_LAB.shapes;
+    var lw = parseFloat(t.outlineWidth);
+    var L = layout(box);
+
+    ctx.save();
+    ctx.lineJoin = 'round';
+
+    // 1. Shadow under the body
+    shapes.softShadow(ctx, L.shadow.cx, L.shadow.y, L.shadow.rx, L.shadow.ry);
+
+    // 2. Post (drawn before the body, so the body covers its lower end)
+    ctx.fillStyle = t.balanceBodySide;
+    ctx.strokeStyle = t.glassOutline;
+    ctx.lineWidth = lw;
+    ctx.fillRect(L.post.x, L.post.y, L.post.w, L.post.h);
+    ctx.strokeRect(L.post.x, L.post.y, L.post.w, L.post.h);
+
+    // 3. Body: face colour with a soft shade on the right, like the solid objects
+    var b = L.body;
+    var shade = ctx.createLinearGradient(b.x + b.w * 0.80, 0, b.x + b.w * 0.98, 0);
+    shade.addColorStop(0, t.balanceBody);
+    shade.addColorStop(1, t.balanceBodySide);
+    ctx.beginPath();
+    shapes.roundedRect(ctx, b.x, b.y, b.w, b.h, b.r);
+    ctx.fillStyle = shade;
+    ctx.fill();
+    ctx.stroke();
+
+    // 4. Pan
+    var p = L.pan;
+    ctx.beginPath();
+    shapes.roundedRect(ctx, p.x, p.y, p.w, p.h, p.r);
+    ctx.fillStyle = t.balancePan;
+    ctx.fill();
+    ctx.stroke();
+
+    // 5. The object on the pan, drawn by the shared solid object component
+    if (props.object) {
+      var solid = window.SKUU_LAB.solidObject;
+      if (solid) {
+        solid.draw(ctx, L.object, { material: props.object.material });
+      } else if (!warnedNoSolid) {
+        console.warn('mass-balance: materials/solid-object is not loaded. Add it to the sim components list.');
+        warnedNoSolid = true;
+      }
+    }
+
+    // 6. Screen, then the reading
+    var sc = L.screen;
+    ctx.beginPath();
+    shapes.roundedRect(ctx, sc.x, sc.y, sc.w, sc.h, sc.r);
+    ctx.fillStyle = t.balanceScreen;
+    ctx.fill();
+    ctx.lineWidth = lw * 0.5;
+    ctx.stroke();
+    drawReading(ctx, sc, props);
+
+    ctx.restore();
+  }
+
+  window.SKUU_LAB.massBalance = {
+    title: 'Mass balance',
+    category: 'measurement',
+    description: 'Digital top-pan balance. Inputs: mass (g), decimals, object { material }.',
+    layout: layout,
+    draw: draw,
+    specimens: [
+      { label: 'Empty, 0 g',            props: { mass: 0 } },
+      { label: 'Aluminium, 135 g',      props: { mass: 135, object: { material: 'aluminium' } } },
+      { label: 'Copper, 358 g',         props: { mass: 358, object: { material: 'copper' } } },
+      { label: 'One decimal, 12.5 g',   props: { mass: 12.5, decimals: 1 } },
+      { label: 'Tons, 123450 g', props: { mass: 12345678923234 } },
+      { label: 'No reading',            props: {} }
     ]
   };
 })();</script>

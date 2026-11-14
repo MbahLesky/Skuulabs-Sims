@@ -122,6 +122,9 @@ function buildSim(slug) {
   const config = fakeWindow.SKUU_CONFIG;
   if (!config) fail('sim.config.js must set window.SKUU_CONFIG');
 
+    // Everything in lab-components/core is always included, so sims never list it
+  const coreFiles = listJsFiles(path.join(COMPONENTS_DIR, 'core'));
+
   // Only the components the sim asks for. "glassware/graduated-cylinder" maps to
   // packages/lab-components/glassware/graduated-cylinder.js
   const files = (config.components || []).map(name => {
@@ -135,7 +138,7 @@ function buildSim(slug) {
     TOKENS_CSS: tokensToCss(),
     SHELL_CSS: read('packages/shell/shell.css'),
     TOKENS_JS: tokensToJs(),
-    COMPONENTS_JS: joinComponents(files),
+    COMPONENTS_JS: joinComponents(coreFiles.concat(files)),   // core helpers first, always
     CONFIG: readSim('sim.config.js'),
     SIM_JS: readSim('sim.js'),
     SHELL_JS: read('packages/shell/shell.js')

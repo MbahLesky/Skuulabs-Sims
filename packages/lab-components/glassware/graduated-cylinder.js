@@ -420,22 +420,11 @@ window.SKUU_LAB = window.SKUU_LAB || {};
   }
 
   // A soft shadow on the surface under the foot. Drawn first, so the glass sits on top of it.
-  // A gradient is used instead of shadowBlur, because blur is slow on low-end phones.
+  // The drawing itself is the shared softShadow helper. The cylinder only says where and how big.
   function drawShadow(ctx, lay) {
-    var t = window.SKUU_TOKENS.apparatus;
     var ry = lay.boxBottom - lay.baseBottom;                      // the room we reserved under the foot
     var rx = Math.min(P.shadowWidthOfBase * (lay.baseRight - lay.baseLeft), lay.cx - lay.boxLeft);
-    if (ry < 1 || rx < 1) return;                                 // no room: skip
-
-    ctx.save();
-    ctx.translate(lay.cx, lay.baseBottom);                        // origin at the middle of the foot's bottom edge
-    ctx.scale(1, ry / rx);                                        // squash a circle into an ellipse
-    var gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, rx);
-    gradient.addColorStop(0, t.shadow);                           // darkest in the middle...
-    gradient.addColorStop(1, t.shadowFade);                       // ...fading to nothing at the edge
-    ctx.fillStyle = gradient;
-    ctx.fillRect(-rx, 0, 2 * rx, rx);                             // lower half only (y from 0 down)
-    ctx.restore();
+    window.SKUU_LAB.shapes.softShadow(ctx, lay.cx, lay.baseBottom, rx, ry);
   }
 
   // A light strip down the inside of the left wall, drawn over the water.

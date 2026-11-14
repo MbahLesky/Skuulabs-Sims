@@ -80,7 +80,7 @@ Tracking daily progress, architecture decisions, and learning milestones for the
 
 ---
 
-## Day 07 — Thu, Nov 12, 2026 *(Today)*
+## Day 07 — Thu, Nov 12, 2026
 **Focus:** Solid Materials, Shading Models & Submerged Object Rendering
 
 - [x] Created `packages/lab-components/materials/solid-object.js`:
@@ -93,6 +93,21 @@ Tracking daily progress, architecture decisions, and learning milestones for the
   - Calculated proportional `objectBox` standing on cylinder floor matched to water displacement rise.
   - Implemented semi-transparent underwater tint over submerged portions while keeping above-water portions clear.
   - Added showcase specimens for various materials and partially/fully submerged states.
+
+---
+
+## Day 08 — Fri, Nov 13, 2026
+**Focus:** Core Shape Helpers, Digital Mass Balance & Monospace Typography
+
+- [x] Created `packages/lab-components/core/shapes.js` with shared `roundedRect` and `softShadow` drawing helpers.
+- [x] Updated `build.js` to automatically prepend all core helper scripts before simulation components.
+- [x] Refactored `graduated-cylinder.js` and `solid-object.js` to use shared core shapes instead of duplicate logic.
+- [x] Built the digital Mass Balance component (`packages/lab-components/measurement/mass-balance.js`):
+  - Designed on a 100×80 relative grid with proportional scaling and pan landing coordinates.
+  - Added digital LCD readout with auto-shrinking monospace typography and overflow protection.
+  - Supported rendering solid objects on the pan via `solidObject.draw`.
+- [x] Added balance color tokens (`balanceBody`, `balancePan`, `balanceScreen`, `balanceDigits`) and `fontMono` in `tokens.js`.
+
 
 
 
